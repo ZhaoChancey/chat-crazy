@@ -38,7 +38,7 @@ public class SensitiveWordHandler {
             .initialCapacity(1)
             // 过期时间为 12 小时
             .expireAfterWrite(12, TimeUnit.HOURS)
-            .build(new CacheLoader<>() {
+            .build(new CacheLoader<String, WordTree>() {
 
                 @Override
                 public @NotNull WordTree load(@NotNull String s) {

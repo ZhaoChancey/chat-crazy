@@ -63,7 +63,7 @@ public class AccessTokenApiClient {
         // 构建 Request
         Request request = new Request.Builder()
                 .url(reverseProxy)
-                .post(RequestBody.create(ObjectMapperUtil.toJson(conversationRequest), MediaType.parse(ContentType.JSON.getValue())))
+                .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), ObjectMapperUtil.toJson(conversationRequest)))
                 .headers(headers)
                 .build();
         // 创建事件

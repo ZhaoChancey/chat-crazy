@@ -3,16 +3,17 @@ package com.hncboy.chatgpt.base.handler.aspect;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.servlet.JakartaServletUtil;
+import cn.hutool.extra.servlet.ServletUtil;
 import com.hncboy.chatgpt.base.config.ChatConfig;
 import com.hncboy.chatgpt.base.exception.AuthException;
 import com.hncboy.chatgpt.base.util.WebUtil;
-import jakarta.annotation.Resource;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -46,7 +47,7 @@ public class FrontPreAuthAspect {
             return point.proceed();
         }
 
-        String authorization = JakartaServletUtil.getHeader(WebUtil.getRequest(), "Authorization", StandardCharsets.UTF_8);
+        String authorization = ServletUtil.getHeader(WebUtil.getRequest(), "Authorization", StandardCharsets.UTF_8);
         if (StrUtil.isBlank(authorization) || !authorization.replace("Bearer ", "").trim().equals(chatConfig.getAuthSecretKey().trim())) {
             throw new AuthException("Error: 无访问权限 | No access rights");
         }

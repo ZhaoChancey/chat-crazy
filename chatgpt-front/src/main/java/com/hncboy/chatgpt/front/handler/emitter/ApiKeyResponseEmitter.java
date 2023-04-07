@@ -9,7 +9,6 @@ import com.hncboy.chatgpt.base.enums.ChatMessageStatusEnum;
 import com.hncboy.chatgpt.base.enums.ChatMessageTypeEnum;
 import com.hncboy.chatgpt.base.util.ObjectMapperUtil;
 import com.hncboy.chatgpt.front.api.apikey.ApiKeyChatClientBuilder;
-import com.hncboy.chatgpt.front.api.listener.ConsoleStreamListener;
 import com.hncboy.chatgpt.front.api.listener.ParsedEventSourceListener;
 import com.hncboy.chatgpt.front.api.listener.ResponseBodyEmitterStreamListener;
 import com.hncboy.chatgpt.front.api.parser.ChatCompletionResponseParser;
@@ -21,7 +20,7 @@ import com.unfbx.chatgpt.entity.chat.Message;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 
-import jakarta.annotation.Resource;
+import javax.annotation.Resource;
 import java.util.LinkedList;
 import java.util.Objects;
 

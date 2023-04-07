@@ -46,7 +46,7 @@ public class RateLimiterRunner implements ApplicationRunner {
             }
             // 文件长度大于 0 才读取
             try (FileReader fr = new FileReader(file)) {
-                RateLimiterHandler.TimestampPair timestampPair = objectMapper.readValue(fr, new TypeReference<>() {
+                RateLimiterHandler.TimestampPair timestampPair = objectMapper.readValue(fr, new TypeReference<RateLimiterHandler.TimestampPair>() {
                 });
                 GLOBAL_REQUEST_TIMESTAMP_QUEUE.addAll(timestampPair.getGlobalQueue());
                 IP_REQUEST_TIMESTAMP_MAP.putAll(timestampPair.getIpMap());

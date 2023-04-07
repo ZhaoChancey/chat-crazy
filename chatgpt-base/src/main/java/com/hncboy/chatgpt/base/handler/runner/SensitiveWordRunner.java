@@ -54,7 +54,7 @@ public class SensitiveWordRunner implements ApplicationRunner {
                         .in(SensitiveWordDO::getWord, subSensitiveWords));
 
                 // 已经存在的单词
-                List<String> existWords = existSensitiveWords.stream().map(SensitiveWordDO::getWord).toList();
+                List<String> existWords = existSensitiveWords.stream().map(SensitiveWordDO::getWord).collect(Collectors.toList());
                 // 构建不存在的敏感词列表
                 List<SensitiveWordDO> notExistSensitiveWords = subSensitiveWords.stream()
                         .filter(word -> !existWords.contains(word))

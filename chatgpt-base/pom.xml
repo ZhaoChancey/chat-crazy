@@ -3,8 +3,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.hncboy</groupId>
-        <artifactId>chatgpt-web-java</artifactId>
+        <groupId>com.crazy.chat</groupId>
+        <artifactId>chat-crazy</artifactId>
         <version>${revision}</version>
     </parent>
     <artifactId>chatgpt-base</artifactId>
