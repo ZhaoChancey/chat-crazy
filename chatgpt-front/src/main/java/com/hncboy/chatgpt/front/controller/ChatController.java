@@ -44,4 +44,9 @@ public class ChatController {
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
         return chatService.chatProcess(chatProcessRequest);
     }
+
+    @PostMapping("/health")
+    public String ping() {
+        return "pong";
+    }
 }

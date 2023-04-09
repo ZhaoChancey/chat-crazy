@@ -4,6 +4,7 @@ import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.hncboy.chatgpt.base.config.ChatConfig;
 import com.hncboy.chatgpt.base.exception.ServiceException;
+import com.hncboy.chatgpt.front.domain.request.RegisterRequest;
 import com.hncboy.chatgpt.front.domain.request.VerifySecretRequest;
 import com.hncboy.chatgpt.front.domain.vo.ApiModelVO;
 import com.hncboy.chatgpt.front.service.AuthService;
@@ -46,5 +47,10 @@ public class AuthServiceImpl implements AuthService {
         apiModelVO.setAuth(chatConfig.hasAuth());
         apiModelVO.setModel(chatConfig.getApiTypeEnum());
         return apiModelVO;
+    }
+
+    @Override
+    public String register(RegisterRequest registerRequest) {
+        return null;
     }
 }

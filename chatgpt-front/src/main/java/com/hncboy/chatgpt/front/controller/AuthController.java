@@ -1,6 +1,7 @@
 package com.hncboy.chatgpt.front.controller;
 
 import com.hncboy.chatgpt.base.handler.response.R;
+import com.hncboy.chatgpt.front.domain.request.RegisterRequest;
 import com.hncboy.chatgpt.front.domain.request.VerifySecretRequest;
 import com.hncboy.chatgpt.front.domain.vo.ApiModelVO;
 import com.hncboy.chatgpt.front.service.AuthService;
@@ -37,4 +38,18 @@ public class AuthController {
     public R<Void> verifySecretKey(@RequestBody @Validated VerifySecretRequest verifySecretRequest) {
         return R.success(authService.verifySecretKey(verifySecretRequest));
     }
+
+    @PostMapping("/register")
+    public R<Void> register(@RequestBody RegisterRequest registerRequest) {
+        return R.success(authService.register(registerRequest));
+    }
+
+    @PostMapping("/login")
+
+
+
+    @PostMapping("/sign/phone")
+
+
+    @PostMapping("/pass/update")
 }

@@ -1,5 +1,6 @@
 package com.hncboy.chatgpt.front.service;
 
+import com.hncboy.chatgpt.front.domain.request.RegisterRequest;
 import com.hncboy.chatgpt.front.domain.request.VerifySecretRequest;
 import com.hncboy.chatgpt.front.domain.vo.ApiModelVO;
 
@@ -24,4 +25,6 @@ public interface AuthService {
      * @return 模型信息
      */
     ApiModelVO getApiModel();
+
+    String register(RegisterRequest registerRequest);
 }
