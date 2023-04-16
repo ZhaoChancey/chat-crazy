@@ -5,9 +5,20 @@ spring:
     password: ${MYSQL_PASSWORD:@Zqc1997120}
     url: ${JDBC_URL:jdbc:mysql://bj-cynosdbmysql-grp-7hdbdh2w.sql.tencentcdb.com:29037/chat?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&useSSL=false&allowPublicKeyRetrieval=true}
 
-mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  redis:
+    host: bj-crs-dze0pc6j.sql.tencentcdb.com
+    port: 24521
+    password: 9bce9f38e8ec
+    lettuce:
+      pool:
+        min-idle: 8
+        max-idle: 16
+        max-wait: 500
+        max-active: 32
+    timeout: 500
+#mybatis-plus:
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 chat:
   # 访问密码

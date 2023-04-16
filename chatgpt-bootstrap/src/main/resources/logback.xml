@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="5 seconds">
+    <property name="MAX_HISTORY" value="2880"/>
+    <property name="LOG_PATH" value="/home/mi/log"/>
+
+    <appender name="growthFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/chat-crazy/chat-crazy.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd_HH:mm:ss.SSS} %-5level [%X{trace_id}] %t %logger{30}.%M\(%L\) [%m]%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATHh}/chat-crazy/chat-crazy.log.%d{yyyy-MM-dd-HH}</fileNamePattern>
+            <MaxHistory>${MAX_HISTORY}</MaxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd_HH:mm:ss.SSS} %-5level [%X{trace_id}] %t %logger{30}.%M\(%L\) [%m]%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.xiaomi.growth.advertising.coordination" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="growthFileAppender"/>
+    </logger>
+
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="growthFileAppender"/>
+    </root>
+</configuration>

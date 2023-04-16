@@ -1,0 +1,1 @@
+package com.chat.crazy.domain.bo;
