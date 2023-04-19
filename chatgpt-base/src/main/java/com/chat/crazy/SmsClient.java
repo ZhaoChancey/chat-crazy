@@ -1,20 +1,15 @@
 package com.chat.crazy;
 
-import com.chat.crazy.handler.response.ResultStatusEnum;
+import com.chat.crazy.handler.response.ResultCode;
 import com.chat.crazy.util.OkHttpUtils;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
@@ -24,8 +19,8 @@ public class SmsClient {
     private final String apikey = "60928d149f4651b584bb025ea6004c2b";
 
     private final Gson gson = new Gson();
-    public ResultStatusEnum sendMsg(String phone, String code) {
-        ResultStatusEnum res = ResultStatusEnum.SUCCESS;
+    public ResultCode sendMsg(String phone, String code) {
+        ResultCode res = ResultCode.SUCCESS;
         try {
             Map<String, String> map = new HashMap<>();
             map.put("apikey", apikey);
@@ -35,7 +30,7 @@ public class SmsClient {
             String result = OkHttpUtils.postJson(url, null, gson.toJson(map));
             log.info("手机：{}， 验证码：{}， 发送结果：{}", phone, code, result);
         } catch (Exception e) {
-            res = ResultStatusEnum.FAIL;
+            res = ResultCode.INTERNAL_SERVER_ERROR;
             log.error("手机：{}， 验证码：{}, send phone code error:{}", phone, code, ExceptionUtils.getStackTrace(e));
         }
         return res;

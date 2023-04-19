@@ -1,7 +1,6 @@
 package com.chat.crazy.handler.aspect;
 
 import cn.hutool.extra.servlet.ServletUtil;
-import cn.hutool.json.ObjectMapper;
 import com.chat.crazy.annotation.FrontPreAuth;
 import com.chat.crazy.exception.AuthException;
 import com.chat.crazy.service.AuthService;
@@ -39,7 +38,6 @@ public class FrontPreAuthAspect {
 
     }
 
-    private final Gson gson = new Gson();
     /**
      * 切 方法 和 类上的 @PreAuth 注解
      *
@@ -51,7 +49,6 @@ public class FrontPreAuthAspect {
     public Object checkAuth(ProceedingJoinPoint point) throws Throwable {
         HttpServletRequest request = WebUtil.getRequest();
         HttpServletResponse response = WebUtil.getResponse();
-        log.info("checkAuth begin");
         //方法签名
         MethodSignature methodSignature = (MethodSignature) point.getSignature();
         //获取方法
@@ -59,64 +56,45 @@ public class FrontPreAuthAspect {
         //获取 @Permissions 的值
         FrontPreAuth preAuth = aimMethod.getAnnotation(FrontPreAuth.class);
         Object result = null;
+        String virId = ServletUtil.getHeader(request, "virId", StandardCharsets.UTF_8);
+        String token = ServletUtil.getHeader(request, "token", StandardCharsets.UTF_8);
         if (preAuth.customize() == 0) {
-            if (preAuth.virIdAuth() && StringUtils.isEmpty(ServletUtil.getHeader(request, "virId", StandardCharsets.UTF_8))) {
+            // 通用流程
+            if (preAuth.virIdAuth() && StringUtils.isEmpty(virId)) {
                 log.error("virId 不能为空");
                 throw new AuthException("virId不能为空");
             }
 
-            if (preAuth.tokenAuth() && StringUtils.isEmpty(ServletUtil.getHeader(request, "token", StandardCharsets.UTF_8))) {
+            if (preAuth.tokenAuth() && StringUtils.isEmpty(token)) {
                 log.error("token 不能为空");
                 throw new AuthException("token不能为空");
             }
 
             if (preAuth.tokenAuth()) {
-                boolean isValid = authService.verifyWebToken(request.getHeader("token"), response);
+                boolean isValid = authService.verifyWebToken(token, response);
                 if (!isValid) {
                     throw new AuthException("Error: 无访问权限 | No access rights");
                 }
             }
-
-            if (StringUtils.isNotEmpty(response.getHeader("token"))) {
-                response.setHeader("token", ServletUtil.getHeader(request, "token", StandardCharsets.UTF_8));
-            }
             result = point.proceed();
-//            response.setContentType("application/json; charset=utf-8");
         } else {
+            // 特殊流程
             if ("getUserInfo".equals(aimMethod.getName())) {
-                if (StringUtils.isEmpty(ServletUtil.getHeader(request, "virId", StandardCharsets.UTF_8))) {
+                if (StringUtils.isEmpty(virId)) {
                     log.error("virId 不能为空");
                     throw new AuthException("virId不能为空");
                 }
                 // 未登录时忽略校验
-                if (StringUtils.isNotEmpty(ServletUtil.getHeader(request, "token", StandardCharsets.UTF_8))) {
-                    boolean isValid = authService.verifyWebToken(request.getHeader("token"), response);
+                if (StringUtils.isNotEmpty(token)) {
+                    boolean isValid = authService.verifyWebToken(token, response);
                     if (!isValid) {
                         throw new AuthException("Error: 无访问权限 | No access rights");
                     }
-                    result = point.proceed();
-                    if (StringUtils.isNotEmpty(response.getHeader("token"))) {
-                        response.setHeader("token", ServletUtil.getHeader(request, "token", StandardCharsets.UTF_8));
-                    }
-                } else {
-                    result = point.proceed();
                 }
+                result = point.proceed();
             }
-//            response.setContentType("application/json; charset=utf-8");
-//            response.getWriter().write(gson.toJson(result));
-//            response.getWriter().write(
-//            );
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            resp.getWriter().write(objectMapper.writeValueAsString(restResult))
         }
 
         return result;
     }
-
-//    private void writeResponse(HttpServletResponse resp, Object restResult) throws IOException {
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        resp.setStatus(status.value());
-//        resp.setContentType("application/json; charset=utf-8");
-//        resp.getWriter().write(objectMapper.writeValueAsString(restResult));
-//    }
 }

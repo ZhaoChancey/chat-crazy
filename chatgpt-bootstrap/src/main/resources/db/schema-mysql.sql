@@ -67,13 +67,14 @@ CREATE TABLE `virtual_user` (
 
 -- 用户表
 CREATE TABLE IF NOT EXISTS user_info (
-     id BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键',
-     phone CHAR(32) NOT NULL COMMENT '手机号',
+    id BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键',
+    phone CHAR(32) NOT NULL COMMENT '手机号',
     status INTEGER NOT NULL COMMENT '状态 1 启用 0 停用',
-    vip_type INTEGER NOT NULL COMMENT '会员类型 0：普通用户，1：会员',
     nick_name VARCHAR(32) DEFAULT '小柴' COMMENT '昵称',
     start_time DATETIME NOT NULL  COMMENT '生效日期',
     end_time DATETIME NOT NULL  COMMENT '失效日期',
+    vip_start_time DATETIME COMMENT 'vip-生效日期',
+    vip_end_time DATETIME COMMENT 'vip-失效日期',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (id),
@@ -86,7 +87,7 @@ CREATE TABLE IF NOT EXISTS user_active_info (
     user_id BIGINT NOT NULL COMMENT '手机号',
     ip VARCHAR(32) DEFAULT '' COMMENT 'IP地址',
     active_type INTEGER NOT NULL COMMENT '0: 登录，1：退出登录',
-    active_time  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '登录/退出时间',
+    active_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '登录/退出时间',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户登录信息表';

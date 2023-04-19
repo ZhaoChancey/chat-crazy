@@ -17,4 +17,6 @@ public interface ApplicationConstant {
     String ADMIN_PATH_PREFIX = "admin";
     
     String TRACE_ID = "trace_id";
+    
+    String DEFAULT_NICKNAME = "小柴";
 }

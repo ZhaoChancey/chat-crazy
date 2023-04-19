@@ -28,10 +28,6 @@ public class UserDO {
      */
     private Integer status;
 
-    /**
-     * 会员类型 0：普通用户，1：会员
-     */
-    private Integer vipType;
 
     /**
      * 昵称
@@ -39,14 +35,24 @@ public class UserDO {
     private String nickName;
 
     /**
-     * 生效日期
+     * 登录用户-生效日期
      */
     LocalDateTime startTime;
 
     /**
-     * 失效日期
+     * 登录用户-失效日期
      */
     LocalDateTime endTime;
+
+    /**
+     * vip用户-生效日期
+     */
+    LocalDateTime vipStartTime;
+
+    /**
+     * vip用户-失效日期
+     */
+    LocalDateTime vipEndTime; 
 
     /**
      * 创建时间

@@ -2,6 +2,7 @@ package com.chat.crazy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chat.crazy.constant.UserStatus;
 import com.chat.crazy.domain.entity.VirtualUserDO;
 import com.chat.crazy.domain.request.user.VirtualIdReq;
 import com.chat.crazy.mapper.VirtualUserMapper;
@@ -30,7 +31,7 @@ public class VirtualServiceImpl extends ServiceImpl<VirtualUserMapper, VirtualUs
             // 保存到数据库
             VirtualUserDO virtualUserDO = new VirtualUserDO();
             virtualUserDO.setVirId(virId);
-            virtualUserDO.setStatus(1);
+            virtualUserDO.setStatus(UserStatus.VALID.getStatus());
             save(virtualUserDO);
         }
         return virId;

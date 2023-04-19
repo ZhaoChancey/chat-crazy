@@ -9,7 +9,7 @@
             <pattern>%d{yyyy-MM-dd_HH:mm:ss.SSS} %-5level [%X{trace_id}] %t %logger{30}.%M\(%L\) [%m]%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATHh}/chat-crazy/chat-crazy.log.%d{yyyy-MM-dd-HH}</fileNamePattern>
+            <fileNamePattern>${LOG_PATH}/chat-crazy/chat-crazy.log.%d{yyyy-MM-dd-HH}</fileNamePattern>
             <MaxHistory>${MAX_HISTORY}</MaxHistory>
         </rollingPolicy>
     </appender>

@@ -27,7 +27,6 @@ import javax.annotation.Resource;
 @RequestMapping("/user")
 public class AuthController {
 
-    //TODO:简化鉴权流程
     @Resource
     private AuthServiceImpl authService;
 
@@ -48,9 +47,7 @@ public class AuthController {
     @Operation(summary = "验证码发送")
     @PostMapping("/sendMsg")
     public R<String> sendMes(@RequestBody @Validated SendMsgReq req) {
-        R<String> success = R.success(authService.sendMes(req));
-        System.out.println(success);
-        return success;
+        return R.success(authService.sendMes(req));
     }
 
     @FrontPreAuth(tokenAuth = false)
@@ -61,7 +58,7 @@ public class AuthController {
     }
 
     @FrontPreAuth
-    @Operation(summary = "登录")
+    @Operation(summary = "退出登录")
     @PostMapping("/logout")
     public R<String> logout() {
         return R.success(authService.logout());

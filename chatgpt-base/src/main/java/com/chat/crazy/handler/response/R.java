@@ -20,9 +20,6 @@ public class R<T> {
     @Schema(title = "状态码")
     private int code;
 
-    @Schema(title = "状态字符串")
-    private ResultStatusEnum status;
-
     @Schema(title = "承载数据")
     private T data;
 
@@ -34,20 +31,16 @@ public class R<T> {
     
     @Schema(title = "traceId")
     private String traceId;
-
-    private R(IResultCode resultCode) {
-        this(resultCode, null, resultCode.getMessage());
+    
+    private R(ResultCode resultCode, String message) {
+        this(resultCode, null, message);
     }
 
-    private R(IResultCode resultCode, String msg) {
-        this(resultCode, null, msg);
-    }
-
-    private R(IResultCode resultCode, T data) {
+    private R(ResultCode resultCode, T data) {
         this(resultCode, data, resultCode.getMessage());
     }
 
-    private R(IResultCode resultCode, T data, String msg) {
+    private R(ResultCode resultCode, T data, String msg) {
         this(resultCode.getCode(), data, msg);
     }
 
@@ -55,21 +48,8 @@ public class R<T> {
         this.code = code;
         this.data = data;
         this.message = msg;
-        this.status = resultCodeToStatus(code);
         this.timestamp = System.currentTimeMillis();
         this.traceId = MDC.get(ApplicationConstant.TRACE_ID);
-    }
-
-    private static ResultStatusEnum resultCodeToStatus(int code) {
-        ResultStatusEnum status = ResultStatusEnum.SUCCESS;
-        if (code != ResultCode.SUCCESS.getCode()) {
-            if (code == ResultCode.UN_AUTHORIZED.getCode()) {
-                status = ResultStatusEnum.Unauthorized;
-            } else {
-                status = ResultStatusEnum.FAIL;
-            }
-        }
-        return status;
     }
 
     /**
@@ -108,18 +88,6 @@ public class R<T> {
         return new R<>(code, data, msg);
     }
 
-//    /**
-//     * 返回 R
-//     *
-//     * @param msg 消息
-//     * @param <T> T 泛型标记
-//     * @return R
-//     */
-//    public static <T> R<T> success(String msg) {
-//        return data(null, msg);
-//    }
-
-
     /**
      * 返回 R
      *
@@ -128,9 +96,31 @@ public class R<T> {
      * @return R
      */
     public static <T> R<T> success(T data) {
-        return data(data, ResultStatusEnum.SUCCESS.getMsg());
+        return data(data, ResultCode.SUCCESS.getMessage());
     }
 
+    /**
+     * 返回 R
+     *
+     * @param data 消息
+     * @param <T> T 泛型标记
+     * @return R
+     */
+    public static <T> R<T> success(T data, String message) {
+        return data(data, message);
+    }
+
+    /**
+     * 返回 R
+     *
+     * @param msg 消息
+     * @param <T> T 泛型标记
+     * @return R
+     */
+    public static <T> R<T> fail(ResultCode resultCode, T data, String msg) {
+        return data(resultCode.getCode(), data, msg);
+    }
+    
     /**
      * 返回 R
      *
@@ -150,7 +140,19 @@ public class R<T> {
      * @param <T>        T 泛型标记
      * @return R
      */
-    public static <T> R<T> fail(IResultCode resultCode, String msg) {
+    public static <T> R<T> fail(ResultCode resultCode, String msg) {
         return new R<>(resultCode, msg);
+    }
+
+    /**
+     * 返回 R
+     *
+     * @param data       数据   
+     * @param msg        消息
+     * @param <T>        T 泛型标记
+     * @return R
+     */
+    public static <T> R<T> failInternal(T data, String msg) {
+        return new R<>(ResultCode.INTERNAL_SERVER_ERROR, data, msg);
     }
 }

@@ -14,7 +14,7 @@ import javax.validation.constraints.NotEmpty;
 @Schema(title = "发送验证码请求")
 public class SendMsgReq {
     
-    @NotEmpty
+    @NotEmpty(message = "手机号不能为空")
     @Schema(title = "手机号")
     private String phone;
 }

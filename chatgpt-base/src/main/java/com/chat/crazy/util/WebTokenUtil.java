@@ -7,8 +7,6 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
 
 /**
@@ -22,37 +20,38 @@ public class WebTokenUtil {
     private static final String TOKEN_ISSUSER = "se8w92jskjdsiodao";
     //定义JWT的有效时长
     
-    private static final int TOKEN_VAILDITY_TIME = 3 * 24 * 60 * 60; // 有效时间(秒)
+    private static final String SECRET = "sej238sd782s9sdjg211sew";
+
+    private static final int TOKEN_VALIDITY_TIME = 3 * 24 * 60 * 60; // 有效时间(秒)
     //定义允许刷新JWT的有效时长(在这个时间范围内，用户的JWT过期了，不需要重新登录，后台会给一个新的JWT给前端，这个叫Token的刷新机制后面会着重介绍它的意义。)
-    private static final int ALLOW_EXPIRES_TIME = 2 * 60 * 60; //  允许过期时间(分钟)
+    private static final int ALLOW_EXPIRES_TIME = 12 * 60 * 60; //  允许过期时间(分钟)
     /**
      * 根据用户的登录时间生成动态私钥
      * @param secret 用户的登录时间，也就是申请令牌的时间
      * @return
      */
 
-    public static String genSecretKey(Instant instant){
-        return String.valueOf(instant.getEpochSecond());
+    public static String genSecretKey(Instant secret){
+        return String.valueOf(secret.getEpochSecond());
     }
 
 
     /**
      * 生成token
-     * @param secretKey 根据用户的登录时间生成的秘钥
      * @param subject JWT中payload部分自定义的内容
      * @param issueAt 用户登录的时间，也就是申请令牌的时间
      * @return
      */
-    public static String create(String secretKey, String subject, Instant issueAt) {
+    public static String create(String subject, Instant issueAt) {
         String token = "";
         Algorithm algorithm = null;
         try {
-            algorithm = Algorithm.HMAC256(secretKey);
+            algorithm = Algorithm.HMAC256(SECRET);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        Instant exp = issueAt.plusSeconds(TOKEN_VAILDITY_TIME);
+        Instant exp = issueAt.plusSeconds(TOKEN_VALIDITY_TIME);
         token = JWT.create()
                 .withIssuer(TOKEN_ISSUSER)
                 .withClaim("sub", subject)
@@ -80,15 +79,14 @@ public class WebTokenUtil {
 
     /**
      * 验证token
-     * @param secretKey
      * @param token
      * @throws Exception
      */
-    public static void verify(String secretKey, String token) throws Exception {
+    public static void verify(String token) throws Exception {
         log.debug("verify token ["+token+"]");
         Algorithm algorithm = null;
         try {
-            algorithm = Algorithm.HMAC256(secretKey);
+            algorithm = Algorithm.HMAC256(SECRET);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -98,12 +96,12 @@ public class WebTokenUtil {
     }
 
     //刷新Token
-    public static String getRefreshToken(String secretKey, DecodedJWT jwtToken) {
-        return getRefreshToken(secretKey, jwtToken, TOKEN_VAILDITY_TIME);
+    public static String getRefreshToken(DecodedJWT jwtToken) {
+        return getRefreshToken(jwtToken, TOKEN_VALIDITY_TIME);
     }
     //重载的刷新Token
-    public static String getRefreshToken(String secretKey, DecodedJWT jwtToken, int validityTime) {
-        return getRefreshToken(secretKey, jwtToken, validityTime, ALLOW_EXPIRES_TIME);
+    public static String getRefreshToken(DecodedJWT jwtToken, int validityTime) {
+        return getRefreshToken(SECRET, jwtToken, validityTime, ALLOW_EXPIRES_TIME);
     }
 
     /**

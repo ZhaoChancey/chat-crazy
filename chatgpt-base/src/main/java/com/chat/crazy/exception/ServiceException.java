@@ -1,6 +1,5 @@
 package com.chat.crazy.exception;
 
-import com.chat.crazy.handler.response.IResultCode;
 import com.chat.crazy.handler.response.ResultCode;
 import lombok.Getter;
 
@@ -12,7 +11,7 @@ import lombok.Getter;
 public class ServiceException extends RuntimeException {
 
     @Getter
-    private final IResultCode resultCode;
+    private final ResultCode resultCode;
 
     public ServiceException(String message) {
         super(message);

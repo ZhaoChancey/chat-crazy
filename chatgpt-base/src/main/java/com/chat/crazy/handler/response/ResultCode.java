@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Getter
 @AllArgsConstructor
-public enum ResultCode implements IResultCode {
+public enum ResultCode {
 
     /**
      * 操作成功

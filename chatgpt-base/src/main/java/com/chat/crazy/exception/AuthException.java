@@ -1,6 +1,5 @@
 package com.chat.crazy.exception;
 
-import com.chat.crazy.handler.response.IResultCode;
 import com.chat.crazy.handler.response.ResultCode;
 import lombok.Getter;
 
@@ -12,7 +11,7 @@ import lombok.Getter;
 public class AuthException extends RuntimeException {
 
     @Getter
-    private final IResultCode resultCode;
+    private final ResultCode resultCode;
 
     public AuthException() {
         super(ResultCode.UN_AUTHORIZED.getMessage());
@@ -23,7 +22,7 @@ public class AuthException extends RuntimeException {
         this.resultCode = ResultCode.UN_AUTHORIZED;
     }
 
-    public AuthException(IResultCode code, String message) {
+    public AuthException(ResultCode code, String message) {
         super(message);
         this.resultCode = code;
     }
