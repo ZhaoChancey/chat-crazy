@@ -1,0 +1,70 @@
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${MYSQL_USER_NAME:root}
+    password: ${MYSQL_PASSWORD:lyl222}
+    url: ${JDBC_URL:jdbc:mysql://localhost:3306/chat?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&useSSL=false&allowPublicKeyRetrieval=true}
+
+  redis:
+    host: bj-crs-dze0pc6j.sql.tencentcdb.com
+    port: 24521
+    password: 9bce9f38e8ec
+    lettuce:
+      pool:
+        min-idle: 8
+        max-idle: 16
+        max-wait: 500
+        max-active: 32
+    timeout: 500
+#mybatis-plus:
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+chat:
+  # OpenAI API Key - https://platform.openai.com/overview
+  openai_api_key: ${CHAT_OPENAI_API_KEY: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}
+  # change this to an `accessToken` extracted from the ChatGPT site's `https://chat.openai.com/api/auth/session` response
+  openai_access_token: ${CHAT_OPENAI_ACCESS_TOKEN:}
+  # OpenAI API Base URL - https://api.openai.com/???/??
+#  openai_api_base_url: ${CHAT_OPENAI_API_BASE_URL:https://chat-crazy.icu/}
+  openai_api_base_url: ${CHAT_OPENAI_API_BASE_URL:https://chat-crazy.icu/}
+  # API Model - https://platform.openai.com/docs/models apiKey ? AccessToken mode ???
+  openai_api_model: ${CHAT_OPENAI_API_MODEL:}
+  # ?????? AccessToken ???
+  api_reverse_proxy: ${CHAT_API_REVERSE_PROXY:https://bypass.churchless.tech/api/conversation}
+  # ????
+  timeout_ms: ${CHAT_TIMEOUT_MS:100000}
+  # HTTP ??
+  http_proxy_host: ${CHAT_HTTP_PROXY_HOST:127.0.0.1}
+  # HTTP ??
+  http_proxy_port: ${CHAT_HTTP_PROXY_PORT:}
+  # ?????
+  admin_account: ${CHAT_ADMIN_ACCOUNT:admin}
+  # ?????
+  admin_password: ${CHAT_ADMIN_PASSWORD:admin}
+  # ??????????????
+  admin_sensitive_word_desensitized_enabled: ${CHAT_ADMIN_SENSITIVE_WORD_DESENSITIZED_ENABLED:true}
+  # ???????????
+  maxRequest: ${CHAT_MAX_REQUEST:60}
+  # ?????????????
+  maxRequestSecond: ${CHAT_MAX_REQUEST_SECOND:1800}
+  # ip ?????????
+  ipMaxRequest: ${CHAT_IP_MAX_REQUEST:50}
+  # ip ???????????
+  ipMaxRequestSecond: ${CHAT_IP_MAX_REQUEST_SECOND:3600}
+  # ??????????
+  limitQuestionContextCount: ${CHAT_LIMIT_QUESTION_CONTEXT_COUNT:3}
+  # ????????????
+  isShowBalance: ${CHAT_IS_SHOW_BALANCE:false}
+  # ??????????????????
+  isAdminShowHiddenMessage: ${CHAT_IS_ADMIN_SHOW_HIDDEN_MESSAGE:false}
+  
+pay:
+  alipay:
+    paymentType: 1
+    appId: 2021000122667778
+    privateKey: MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCHdXfSgw6zmNQtpCvyF/3umZJRBid7jzEueqd/CDOy537og8sFsa4FYoNBkxA0m7HWCS/nsmWD4N97ZRqfOHG2nP9DzpPnmz9L2T0HRlA9IbLu3Z97+sHyV9nelEssiSXwCncLKJrYK8pICPpIJGhLmjb8fZBxYZeYP+SYFPh2G5+Uggnos+jHc5U9vTICBJ+B4Qx9bpXueCqVxwxyc/xl2BEc/9AoO7lyyxHUUA4tbh8Wv7qMJjF85tDDLkOoinbC7Wq+esB8E0RPzvU1YDKtAHPBd17wBpyDYHpVSNej09MLHemvsbFjpCkA1ARsF5Kf7/1uVr5ceSRZXr21AOKHAgMBAAECggEAT6q2ngiWTOpFX9J+RhP2NK39b8m+ztyYgE2C1SNtxHqCGR3p+Z9WSbR2ncpwbYBkRw2ALzSsn7NRvLDpx1rbBhuvxaFpO34C7AkH649fAZUgN3wAoFoKVw10BYQR8k93EIYXHWj0KM8YWOVuzZ8b99rrG/R9TzGmhtSNDSTIPC2CON6FndRgCOiRmJCtSp8RlYsBECTgw+4OybrQdRKdmD1UH9BhTrym6Gf7wSlEdCjbkZjjpvOeXvGMvjE87XQlw3oz7C6wAXzq6d17jVjJkg4pNEfFQvPS3YsYG3yVHFKH9mGHbfA9LIDybMqfI1I8czP/uWecTrV3pJRLy0TpgQKBgQDpWYhXeDqz1J2WkT4+gHlPgTXf0Dp6KE4qar59x67gu6MkA+BkhK9O4+fZ2c01cMG/3cjIM3MhHgLF0VXcnw/x7VoO+GDt+PWofTw437oLlIWz5gtRzg76/wzKgzf/H6eCGXn8aIPkjzspmYhzhAQEWpDMOgGkldByVpED9khO7QKBgQCUm3ZA3OgqO8j12JUEHXa4wJySaE1k7zD/Db7zupVgPfQFPW/AclwiDLdolrEkasIoozQEGCV6umNhct5HlyB9Bqv2q59tPMlcp3qTqw9P79Vte6sBRATgNL7ftCxdgUDMJ+FdScjguTfNePSPOEy6wt8en+7wZU44Df0eYkNUwwKBgEpAmSfsNBHBGBwvP3U4AGISJYiAg/sXFDhfGxp/DeCpFHKDYUXbCsW5s68YpTnaFWzuL9O0u2/QUuWLhRzc6H/9HOkilAVlcRYaM62NU3AX5KuoCfYP8ahgvDs8ofbmpbC6VpzAzSdPhG3qUwce/QA9qVGzK46ptViMvzxZhAzJAoGAdiy6eRIyvYMVaAt3VPJpOrpQyEyRXzam6+xucTtrFkGuD4yvlYZbpege4dkTvTX4eIBwGOFqzJHz/cZu5NdVSpdHoL0R5rh0GG5Gl69sWdELFClH75W7mt/W+eY5cZIbiT4dhSXrzGj96zPIpyvKOKpG6/+a7yhgb0sQglz51ikCgYBkvwRF+FEs0cJQr1hUs0phjLWIhZCPEpMVnLvhgM5wjhuB3AdNRK9Zt/mBb4/bwM7WdtzEHMhXqM5t4IeTavfZ7omTKOXzEu5e9KniUVq2fnKhTdvavXCwPztB8JXPAqHuK7c6cC0diJs1aHXL1EUckZjXbz+BH2EIw/h7ONU3Og==
+    alipayPublicKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqXe41EgUcX/xaMAru6oIZo8FwY0wlBDzb2GoG9d8vGfZwSHL8BKX6O5wtEfALJ7FZCjGRONwe99pZ4mRYFKZ1jp4zoA0bmrH9XFrJtXlZm0Fv6wZa7UzJgDkURubsBkjLczh9kwxmlTVXXcqqKkswF62zcC7bykp4Tf1MESIemENsIfSXv7YHrCiJo7yqZ4mG24FCS5Io/pxZDXXc97PXz7uEFIGwABuLmvktNKsyGQD2JRTv8jD9p9Da2n9fOu8qD5Ho8XbRsqhR7EmZpY5H1V6kiMnU807nKhEme3iefHze6IAWRFEvc/wq4HulrL2kna3bcLGrXWMJMhZuox8nwIDAQAB
+    notifyUrl:
+    gatewayUrl: https://openapi-sandbox.dl.alipaydev.com/gateway.do
