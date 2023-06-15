@@ -67,3 +67,6 @@ pay:
     alipayPublicKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqXe41EgUcX/xaMAru6oIZo8FwY0wlBDzb2GoG9d8vGfZwSHL8BKX6O5wtEfALJ7FZCjGRONwe99pZ4mRYFKZ1jp4zoA0bmrH9XFrJtXlZm0Fv6wZa7UzJgDkURubsBkjLczh9kwxmlTVXXcqqKkswF62zcC7bykp4Tf1MESIemENsIfSXv7YHrCiJo7yqZ4mG24FCS5Io/pxZDXXc97PXz7uEFIGwABuLmvktNKsyGQD2JRTv8jD9p9Da2n9fOu8qD5Ho8XbRsqhR7EmZpY5H1V6kiMnU807nKhEme3iefHze6IAWRFEvc/wq4HulrL2kna3bcLGrXWMJMhZuox8nwIDAQAB
     notifyUrl: https://kolikoli.cc/pay/vip/notify/v1 
     gatewayUrl: https://openapi-sandbox.dl.alipaydev.com/gateway.do
+
+log:
+  path: /home/mi/log/dev

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="5 seconds">
     <property name="MAX_HISTORY" value="2880"/>
-    <property name="LOG_PATH" value="/home/mi/log"/>
+<!--    <property name="LOG_PATH" value="/home/mi/log"/>-->
+    <springProperty scope="context" name="LOG_PATH" source="log.path"/>
 
     <appender name="growthFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/chat-crazy/chat-crazy.log</file>
