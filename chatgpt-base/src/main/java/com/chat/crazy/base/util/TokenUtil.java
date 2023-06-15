@@ -24,7 +24,7 @@ public class TokenUtil {
     
     private static final String SECRET = "sej238sd782s9sdjg211sew";
 
-    private static final int TOKEN_VALIDITY_TIME = 3 * 24 * 60 * 60; // 有效时间(秒)
+    private static final int TOKEN_VALIDITY_TIME = 7 * 24 * 60 * 60; // 有效时间(秒)
     //定义允许刷新JWT的有效时长(在这个时间范围内，用户的JWT过期了，不需要重新登录，后台会给一个新的JWT给前端，这个叫Token的刷新机制后面会着重介绍它的意义。)
     private static final int ALLOW_EXPIRES_TIME = 12 * 60 * 60; //  允许过期时间(秒)
     /**
