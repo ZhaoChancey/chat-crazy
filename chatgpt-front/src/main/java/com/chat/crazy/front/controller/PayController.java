@@ -1,5 +1,6 @@
 package com.chat.crazy.front.controller;
 
+import com.alipay.api.AlipayApiException;
 import com.chat.crazy.base.annotation.FrontPreAuth;
 import com.chat.crazy.base.config.ServerConfig;
 import com.chat.crazy.base.handler.response.R;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @Author:
@@ -57,5 +59,10 @@ public class PayController {
     @FrontPreAuth
     public R<String> cancelOrder(@RequestBody PayOrderRequest request) {
         return null;
+    }
+    
+    @PostMapping("/vip/notify/v1 ")
+    public String notifyAsync(HttpServletRequest request) throws AlipayApiException {
+        return payService.notifyAsync(request); 
     }
 }

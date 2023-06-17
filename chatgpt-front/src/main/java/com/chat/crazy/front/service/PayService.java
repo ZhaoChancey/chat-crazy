@@ -1,10 +1,13 @@
 package com.chat.crazy.front.service;
 
+import com.alipay.api.AlipayApiException;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chat.crazy.base.domain.entity.OrderDO;
 import com.chat.crazy.front.domain.vo.pay.PayOrderStatusVO;
 import com.chat.crazy.front.domain.vo.pay.PayPackageVO;
 import com.chat.crazy.front.domain.vo.pay.PayPreCreateVO;
+
+import javax.servlet.http.HttpServletRequest;
 
 public interface PayService extends IService<OrderDO> {
     /**
@@ -33,4 +36,6 @@ public interface PayService extends IService<OrderDO> {
      * @return
      */
     String cancelOrder(String orderId);
+    
+    String notifyAsync(HttpServletRequest request) throws AlipayApiException;
 }
