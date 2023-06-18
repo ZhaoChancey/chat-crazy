@@ -2,7 +2,6 @@ package com.chat.crazy.front.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chat.crazy.base.domain.entity.OrderDO;
-import com.chat.crazy.base.domain.entity.UserDO;
 import org.springframework.stereotype.Repository;
 
 @Repository

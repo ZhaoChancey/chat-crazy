@@ -24,9 +24,14 @@ public class OrderDO {
     private Long id;
 
     /**
-     * 买家id/用户id
+     * 用户 id，user_type=0时表示虚拟用户的主键
      */
-    private Integer buyerId;
+    private Integer userId;
+
+    /**
+     * 用户类型，0：未登录用户，1：已登录用户
+     */
+    private Integer userType;
 
     /**
      * 渠道类型，1：支付宝，2：微信

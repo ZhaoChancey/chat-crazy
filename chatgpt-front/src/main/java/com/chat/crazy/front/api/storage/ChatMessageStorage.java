@@ -2,8 +2,10 @@ package com.chat.crazy.front.api.storage;
 
 import com.chat.crazy.front.api.parser.ResponseParser;
 import com.chat.crazy.base.domain.entity.ChatMessageDO;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author hncboy
@@ -12,6 +14,8 @@ import lombok.Data;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChatMessageStorage {
 
     /**

@@ -10,7 +10,7 @@ import lombok.Data;
  */
 @Data
 @TableName("chat_distribute")
-public class DistributeDo {
+public class DistributeDO {
     private Integer id;
     
     private String port;

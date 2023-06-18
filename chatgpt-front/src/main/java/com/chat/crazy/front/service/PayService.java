@@ -1,8 +1,10 @@
 package com.chat.crazy.front.service;
 
 import com.alipay.api.AlipayApiException;
+import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chat.crazy.base.domain.entity.OrderDO;
+import com.chat.crazy.front.domain.request.pay.PayPreCreateRequest;
 import com.chat.crazy.front.domain.vo.pay.PayOrderStatusVO;
 import com.chat.crazy.front.domain.vo.pay.PayPackageVO;
 import com.chat.crazy.front.domain.vo.pay.PayPreCreateVO;
@@ -18,17 +20,17 @@ public interface PayService extends IService<OrderDO> {
 
     /**
      * 预创建订单，获取二维码链接
-     * @param packageId 套餐类型
+     * @param request
      * @return
      */
-    PayPreCreateVO orderPreCreate(Integer packageId);
+    PayPreCreateVO orderPreCreate(PayPreCreateRequest request);
 
     /**
      * 获取支付状态
      * @param orderId 订单id
      * @return
      */
-    PayOrderStatusVO getOrderStatus(String orderId);
+    AlipayTradeQueryResponse getOrderStatus(String orderId);
 
     /**
      * 主动关闭订单
@@ -36,6 +38,6 @@ public interface PayService extends IService<OrderDO> {
      * @return
      */
     String cancelOrder(String orderId);
-    
+
     String notifyAsync(HttpServletRequest request) throws AlipayApiException;
 }

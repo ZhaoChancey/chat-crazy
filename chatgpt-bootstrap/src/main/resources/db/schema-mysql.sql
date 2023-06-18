@@ -104,13 +104,14 @@ CREATE TABLE IF NOT EXISTS user_active_info (
 -- 订单表
 CREATE TABLE IF NOT EXISTS chat_order (
     id BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键',
-    buyer_id int NOT NULL COMMENT '买家id/用户id',
+    user_id int NOT NULL COMMENT '用户 id，user_type=0时表示虚拟用户的主键',
+    user_type tinyint NOT NULL COMMENT '用户类型，0：未登录用户，1：已登录用户',
     payment_type tinyint NOT NULL COMMENT '渠道类型，1：支付宝，2：微信', 
     order_id VARCHAR(255) NOT NULL COMMENT '订单id',
     transaction_id VARCHAR(255) NOT NULL COMMENT '渠道订单id',
     package_id tinyint NOT NULL COMMENT '套餐类型',
     amount decimal(5, 2) UNSIGNED NOT NULL COMMENT '金额',
-    order_status tinyint NOT NULL COMMENT '订单状态',
+    order_status int NOT NULL COMMENT '订单状态',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),

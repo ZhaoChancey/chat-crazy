@@ -10,8 +10,8 @@ import com.chat.crazy.base.domain.entity.SensitiveWordDO;
 import com.chat.crazy.base.enums.EnableDisableStatusEnum;
 import com.chat.crazy.base.service.SensitiveWordService;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;

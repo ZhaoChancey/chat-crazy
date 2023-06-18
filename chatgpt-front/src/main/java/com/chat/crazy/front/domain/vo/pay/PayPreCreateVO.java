@@ -11,9 +11,8 @@ import lombok.EqualsAndHashCode;
  * @Date: 2023/6/14 上午9:38
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 @Schema(title = "订单二维码获取响应")
-public class PayPreCreateVO extends ChatRequest {
+public class PayPreCreateVO {
     
     @Schema(title = "支付订单id")
     private String orderId;

@@ -15,6 +15,7 @@ public enum TradeStatusEnum {
     WAIT_BUYER_PAY (1001, "WAIT_BUYER_PAY", "交易创建，等待买家付款"),
     TRADE_FINISHED  (1002, "TRADE_FINISHED", "交易结束，不可退款"),
     TRADE_CLOSED  (1003, "TRADE_CLOSED", "未付款交易超时关闭，或支付完成后全额退款"),
+    ERROR  (9999, "error", "error"),
     ;
 
     private int status;

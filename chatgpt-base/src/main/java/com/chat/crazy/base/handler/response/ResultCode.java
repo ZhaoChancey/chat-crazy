@@ -34,6 +34,7 @@ public enum ResultCode {
      */
     INTERNAL_SERVER_ERROR(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "服务器异常"),
     ALI_TRADE_PRE_CREATE_ERROR(10004, "支付宝预下单接口异常"),
+    ALI_TRADE_ORDER_QUERY_ERROR(10005, "支付宝订单查询接口异常"),
     ;
 
     /**
