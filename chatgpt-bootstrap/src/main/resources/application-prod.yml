@@ -67,3 +67,6 @@ pay:
     alipayPublicKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA8nY98E5I/MRgKJwHjY/Wd1ZL5HTLFw90RNjBOz2L4+aRzB7yusYMVZjoQQ0xfc65jFvGZpgi3PaWafC/nL+OIHZWRSsTSgBejyZFW7xWzbYCTe4Edvq+G7e+0v0WPULd2Bed6SaF8yw2fOwQi8UUZ8192n8HEC9Ge+pUuaGW3dNb1FTSYGEN/nTKSt62s/0PJZzPsIKs9TtAZdanLx1EAyOJqeKbMoTGoDHuC2jgqf+YBYOWR/tVkwSytT9MVK5dwQTo9NTlMMo2UtQ/9FYck6C8wKmlehAla4JZG75MDkSOZ5MPki0uU02aNsBBTWiwjsX6WrSaur4gW6FHji6WkwIDAQAB
     notifyUrl: https://mibug.top/pay/vip/notify/v1
     gatewayUrl: https://openapi.alipay.com/gateway.do
+    
+log:
+  path: /home/mi/log/prod
