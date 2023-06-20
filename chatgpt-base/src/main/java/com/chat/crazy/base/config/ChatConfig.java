@@ -199,7 +199,7 @@ public class ChatConfig implements InitializingBean {
 
             // 校验 apiModel
             if (StrUtil.isBlank(openaiApiModel)) {
-                openaiApiModel = ChatCompletion.Model.GPT_4.getName();
+                openaiApiModel = ChatCompletion.Model.GPT_4_0613.getName();
                 return;
             }
             ChatCompletion.Model[] models = ChatCompletion.Model.values();
