@@ -70,4 +70,4 @@ pay:
     gatewayUrl: https://openapi-sandbox.dl.alipaydev.com/gateway.do
     
 log:
-  path: /home/mi/log/local
+  path: /home/mi/log/
