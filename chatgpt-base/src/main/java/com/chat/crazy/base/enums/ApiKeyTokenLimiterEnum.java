@@ -30,9 +30,9 @@ public enum ApiKeyTokenLimiterEnum {
      * @see <a href="https://platform.openai.com/docs/models/gpt-4">GPT4Token 限制文档</a>
      */
     GPT_4(ChatCompletion.Model.GPT_4, 8192),
-    GPT_4_0314(ChatCompletion.Model.GPT_4_0314, 8192),
+    GPT_4_0613(ChatCompletion.Model.GPT_4_0613, 8192),
     GPT_4_32K(ChatCompletion.Model.GPT_4_32K, 32768),
-    GPT_4_32K_0314(ChatCompletion.Model.GPT_4_32K_0314, 32768);
+    GPT_4_32K_0613(ChatCompletion.Model.GPT_4_32K_0613, 32768);
 
     /**
      * 依赖的模型
