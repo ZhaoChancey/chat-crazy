@@ -1,5 +1,7 @@
 package com.chat.crazy.front.controller;
 
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.chat.crazy.base.annotation.FrontPreAuth;
 import com.chat.crazy.base.config.ServerConfig;
 import com.chat.crazy.base.handler.response.R;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @Author:
@@ -26,36 +29,40 @@ import javax.annotation.Resource;
 public class PayController {
     @Resource
     PayService payService;
-    
+
     @Resource
     ServerConfig serverConfig;
-    
+
     @PostMapping("/package")
     @Operation(summary = "获取套餐信息")
     @FrontPreAuth
     public R<PayPackageVO> getPackageInfo() {
         return R.data(payService.getPackageInfo());
     }
-    
+
     @PostMapping("/precreate")
     @Operation(summary = "获取二维码链接")
     @FrontPreAuth
     public R<PayPreCreateVO> orderPreCreate(@RequestBody PayPreCreateRequest request) {
-        return null;
+        return R.data(payService.orderPreCreate(request));
     }
-    
+
     @PostMapping("/status")
     @Operation(summary = "获取支付状态")
     @FrontPreAuth
-    public R<PayOrderStatusVO> getOrderStatus(@RequestBody PayOrderRequest request) {
-        return null;
+    public R<AlipayTradeQueryResponse> getOrderStatus(@RequestBody PayOrderRequest request) {
+        return R.data(payService.getOrderStatus(request.getOrderId()));
 
     }
-    
+
     @PostMapping("/order/cancel")
     @Operation(summary = "主动关闭订单")
     @FrontPreAuth
     public R<String> cancelOrder(@RequestBody PayOrderRequest request) {
         return null;
     }
-}
+
+    @PostMapping("/vip/notify/v1")
+    public String notifyAsync(HttpServletRequest request) throws AlipayApiException {
+        return payService.notifyAsync(request);
+    }}

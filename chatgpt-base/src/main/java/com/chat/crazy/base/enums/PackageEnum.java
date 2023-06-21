@@ -24,5 +24,16 @@ public enum PackageEnum {
     private int id;
     private String subject;
     private BigDecimal price;
-    
+    public static PackageEnum typeOf(Integer id) {
+        for (PackageEnum packageEnum : PackageEnum.values()) {
+            if (packageEnum.getId() == id) {
+                return packageEnum;
+            }
+        }
+        return null;
+    }
+
+    public static String getBody(PackageEnum packageEnum) {
+        return packageEnum.getSubject() + packageEnum.getPrice() + "元";
+    }
 }

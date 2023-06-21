@@ -3,10 +3,11 @@ package com.chat.crazy.base.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chat.crazy.base.config.ServerConfig;
-import com.chat.crazy.base.domain.entity.DistributeDo;
+import com.chat.crazy.base.domain.entity.DistributeDO;
 import com.chat.crazy.base.domain.po.DistributedIdWorker;
 import com.chat.crazy.base.mapper.DistributeMapper;
 import com.chat.crazy.base.service.DistributeService;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
@@ -15,17 +16,18 @@ import javax.annotation.Resource;
  * @Description:
  * @Date: 2023/6/12 下午4:40
  */
-public class DistributeServiceImpl extends ServiceImpl<DistributeMapper, DistributeDo> implements DistributeService {
+@Service
+public class DistributeServiceImpl extends ServiceImpl<DistributeMapper, DistributeDO> implements DistributeService {
     @Resource
     private ServerConfig serverConfig;
     
-    private DistributeDo getConfigByPort(String port) {
-        return getBaseMapper().selectOne(new LambdaQueryWrapper<DistributeDo>().eq(DistributeDo::getPort, port));
+    private DistributeDO getConfigByPort(String port) {
+        return getBaseMapper().selectOne(new LambdaQueryWrapper<DistributeDO>().eq(DistributeDO::getPort, port));
     }
 
     @Override
     public String genDistributeId(String paymentType) {
-        DistributeDo configByPort = getConfigByPort(String.valueOf(serverConfig.getPort()));
+        DistributeDO configByPort = getConfigByPort(String.valueOf(serverConfig.getPort()));
         DistributedIdWorker distributedIdWorker = new DistributedIdWorker(configByPort.getWorkerId(), configByPort.getDatacenterId());
         return paymentType + distributedIdWorker.nextId();
     }
