@@ -1,6 +1,7 @@
 package com.chat.crazy.front.domain.vo.pay;
 
 import com.chat.crazy.base.domain.query.ChatRequest;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,4 +18,7 @@ public class PayOrderStatusVO extends ChatRequest {
     
     @Schema(title = "订单状态")
     private Integer tradeStatus;
+
+    @JsonIgnore
+    private Boolean isTrading = true; // 标志交易是否已创建
 }

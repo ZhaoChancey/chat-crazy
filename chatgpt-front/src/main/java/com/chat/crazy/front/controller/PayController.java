@@ -1,7 +1,6 @@
 package com.chat.crazy.front.controller;
 
 import com.alipay.api.AlipayApiException;
-import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.chat.crazy.base.annotation.FrontPreAuth;
 import com.chat.crazy.base.config.ServerConfig;
 import com.chat.crazy.base.handler.response.R;
@@ -13,7 +12,10 @@ import com.chat.crazy.front.domain.vo.pay.PayPreCreateVO;
 import com.chat.crazy.front.service.PayService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -50,8 +52,8 @@ public class PayController {
     @PostMapping("/status")
     @Operation(summary = "获取支付状态")
     @FrontPreAuth
-    public R<AlipayTradeQueryResponse> getOrderStatus(@RequestBody PayOrderRequest request) {
-        return R.data(payService.getOrderStatus(request.getOrderId()));
+    public R<PayOrderStatusVO> getOrderStatus(@RequestBody PayOrderRequest request) {
+        return R.data(payService.getOrderStatus(request));
 
     }
 
@@ -59,10 +61,11 @@ public class PayController {
     @Operation(summary = "主动关闭订单")
     @FrontPreAuth
     public R<String> cancelOrder(@RequestBody PayOrderRequest request) {
-        return null;
+        return R.data(payService.cancelOrder(request.getOrderId()));
     }
 
-    @PostMapping("/vip/notify/v1")
-    public String notifyAsync(HttpServletRequest request) throws AlipayApiException {
-        return payService.notifyAsync(request);
-    }}
+}
+//    @PostMapping("/vip/notify/v1")
+//    public String notifyAsync(HttpServletRequest request) throws AlipayApiException {
+//        return payService.notifyAsync(request);
+//    }}

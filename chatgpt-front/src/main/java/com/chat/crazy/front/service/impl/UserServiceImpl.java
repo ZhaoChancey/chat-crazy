@@ -78,6 +78,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         }
     }
 
+    @Override
+    public int updateUserInfo(UserDO userDO) {
+        return getBaseMapper().updateById(userDO);
+    }
+
     /**
      * 根据VIP的生效和失效时间判断VIP类型，注意不能用来判断未登录用户！
      * @param vipStartTime
@@ -108,4 +113,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         }
         return true;
     }
+
+
 }

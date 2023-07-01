@@ -26,4 +26,6 @@ public interface UserService extends IService<UserDO> {
      * @return
      */
     boolean verifySendMessage(ChatProcessRequest request);
+
+    int updateUserInfo(UserDO userDO);
 }

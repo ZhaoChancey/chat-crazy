@@ -20,6 +20,7 @@ import com.chat.crazy.front.domain.vo.chat.ChatSessionHistoryVO;
 import com.chat.crazy.front.domain.vo.chat.ChatSessionListVO;
 import com.chat.crazy.front.domain.vo.chat.ChatSessionOperateVO;
 import com.chat.crazy.front.handler.emitter.ChatMessageEmitterChain;
+import com.chat.crazy.front.handler.emitter.RateLimiterEmitterChain;
 import com.chat.crazy.front.handler.emitter.ResponseEmitterChain;
 import com.chat.crazy.front.handler.emitter.SensitiveWordEmitterChain;
 import com.chat.crazy.front.service.*;
@@ -113,12 +114,13 @@ public class ChatServiceImpl implements ChatService {
         emitter.onTimeout(() -> log.error("请求参数：{}，Back-end closed the emitter connection.", ObjectMapperUtil.toJson(chatProcessRequest)));
 
         // 构建 emitter 处理链路
-//        ResponseEmitterChain ipRateLimiterEmitterChain = new RateLimiterEmitterChain();
+        ResponseEmitterChain ipRateLimiterEmitterChain = new RateLimiterEmitterChain();
         ResponseEmitterChain sensitiveWordEmitterChain = new SensitiveWordEmitterChain();
+        ipRateLimiterEmitterChain.setNext(sensitiveWordEmitterChain);
         sensitiveWordEmitterChain.setNext(new ChatMessageEmitterChain());
-        sensitiveWordEmitterChain.doChain(chatProcessRequest, emitter);
+//        sensitiveWordEmitterChain.doChain(chatProcessRequest, emitter);
 //        ipRateLimiterEmitterChain.setNext(sensitiveWordEmitterChain);
-//        ipRateLimiterEmitterChain.doChain(chatProcessRequest, emitter);
+        ipRateLimiterEmitterChain.doChain(chatProcessRequest, emitter);
         return emitter;
     }
     
