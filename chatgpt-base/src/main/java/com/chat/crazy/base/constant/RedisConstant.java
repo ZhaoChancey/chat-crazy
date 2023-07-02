@@ -14,7 +14,7 @@ public interface RedisConstant {
     String ORDER_KEY_SUFFIX = "chat:order:";
 
     // 用户VIP时间15分钟有效期
-    Integer USER_VIP_INFO_VALID_TIME = 900;
+    Integer USER_VIP_INFO_VALID_TIME = 180;
     String USER_VIP_INFO_KEY_SUFFIX = "chat:user:vip:";
 
     /**

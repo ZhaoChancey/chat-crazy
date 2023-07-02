@@ -76,7 +76,7 @@ public class AliPayClient {
             throw new ServiceException(ResultCode.INTERNAL_SERVER_ERROR.getMessage());
         }
         if (response.isSuccess()) {
-            log.info("aplipay query order status execute success: {}", response);
+            log.info("aplipay query order status execute success: {}", queryResToString(response));
         } else {
             log.error("aplipay query order status execute service exception: {}", response);
 
@@ -112,5 +112,10 @@ public class AliPayClient {
 
         }
         return response;
+    }
+
+    public String queryResToString(AlipayTradeQueryResponse response) {
+        return "AlipayTradeQueryResponse(trade_no=" + response.getTradeNo();
+
     }
 }

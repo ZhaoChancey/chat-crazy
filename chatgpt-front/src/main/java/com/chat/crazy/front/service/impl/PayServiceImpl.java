@@ -12,8 +12,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chat.crazy.base.client.AliPayClient;
 import com.chat.crazy.base.config.MdcFilter;
 import com.chat.crazy.base.config.PayConfig;
+import com.chat.crazy.base.constant.RedisConstant;
 import com.chat.crazy.base.domain.bo.AlipayPreCreateClientRequest;
 import com.chat.crazy.base.domain.entity.OrderDO;
+import com.chat.crazy.base.domain.entity.UserDO;
 import com.chat.crazy.base.enums.PackageEnum;
 import com.chat.crazy.base.enums.PaymentTypeEnum;
 import com.chat.crazy.base.enums.TradeStatusEnum;
@@ -30,6 +32,7 @@ import com.chat.crazy.front.domain.vo.pay.PayPreCreateVO;
 import com.chat.crazy.front.mapper.PayMapper;
 import com.chat.crazy.front.service.OrderService;
 import com.chat.crazy.front.service.PayService;
+import com.chat.crazy.front.service.UserService;
 import com.google.gson.Gson;
 import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +52,7 @@ import java.util.concurrent.TimeUnit;
 import static com.chat.crazy.base.constant.RedisConstant.*;
 import static com.chat.crazy.base.constant.RedisConstant.MAX_REQUEST_TIME_HOUR;
 import static com.chat.crazy.base.enums.PackageEnum.*;
+import static com.chat.crazy.base.enums.UserTypeEnum.COMMON;
 
 /**
  * @Author:
@@ -138,6 +142,7 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, OrderDO> implements P
                 log.error("订单保存失败：{}", orderDO);
                 throw new ServiceException("订单创建失败");
             }
+            redisService.setValue(ORDER_KEY_SUFFIX + request.getUserType() + ":" + request.getUserId(), gson.toJson(payPreCreateVO), ORDER_VALID_TIME, TimeUnit.SECONDS);
         } catch (Exception e) {
             log.error("订单创建接口异常，req: {}, error: {}", request, ExceptionUtils.getMessage(e));
         } finally {
@@ -291,13 +296,20 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, OrderDO> implements P
                             updateOrder.setGmtPaymentTime(response.getSendPayDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
                         }
                         // 设置用户VIP时间
-                        orderService.successOrderAndUser(request.getUser(), updateOrder);
-                        vo.setTradeStatus(SUCCESS);
+                        ResultCode resultCode = orderService.successOrderAndUser(request.getUser(), updateOrder);
+                        if (resultCode == ResultCode.SUCCESS) {
+                            vo.setTradeStatus(SUCCESS);
+                            redisService.deleteKey(ORDER_KEY_SUFFIX + request.getUserType() + ":" + request.getUserId());
+                        } else {
+                            throw new ServiceException("订单成功状态设置失败");
+                        }
                     } catch (Exception e) {
                         vo.setTradeStatus(WAIT);
                         log.error("订单状态查询接口异常，req: {}, error: {}", request, ExceptionUtils.getMessage(e));
                     } finally {
-                        redisService.deleteKey(DISTRIBUTE_LOCK_KEY_SUFFIX + "order:update:" + request.getUserType() + ":" + request.getUserId());
+                        if (MdcFilter.getCurrTraceId().equals(redisService.getValue(DISTRIBUTE_LOCK_KEY_SUFFIX + "order:update:" + request.getUserType() + ":" + request.getUserId()))) {
+                            redisService.deleteKey(DISTRIBUTE_LOCK_KEY_SUFFIX + "order:update:" + request.getUserType() + ":" + request.getUserId());
+                        }
                     }
                 } else if (TradeStatusEnum.TRADE_CLOSED.getAliStatus().equals(response.getTradeStatus())) {
                     vo.setTradeStatus(CLOSED);
@@ -313,11 +325,16 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, OrderDO> implements P
     }
 
     @Override
-    public String cancelOrder(String orderId) {
+    public String cancelOrder(PayOrderRequest request) {
         // 查询订单状态，如果未支付状态则调撤销接口
         // 如果撤销成功，打印返回情况再定论
-        OrderDO orderDO = getOrderByOrderId(orderId);
-        if (orderDO == null || orderDO.getOrderStatus() == TradeStatusEnum.TRADE_SUCCESS.getStatus() ||
+        OrderDO orderDO = getOrderByOrderId(request.getOrderId());
+        if (orderDO == null) {
+            log.error("订单不存在，orderId:{}", request.getOrderId());
+            throw new ServiceException("订单不存在");
+        }
+
+        if (orderDO.getOrderStatus() == TradeStatusEnum.TRADE_SUCCESS.getStatus() ||
                 orderDO.getOrderStatus() == TradeStatusEnum.TRADE_FINISHED.getStatus()) {
             return "订单已支付成功，无需撤销";
         }
@@ -328,24 +345,49 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, OrderDO> implements P
 
         // 调用查询接口
         PayOrderRequest payOrderRequest = new PayOrderRequest();
-        payOrderRequest.setOrderId(orderDO.getOrderId());
+        payOrderRequest.setOrderId(request.getOrderId());
         PayOrderStatusVO orderStatus = getOrderStatus(payOrderRequest);
         if (orderStatus.getTradeStatus() == WAIT) {
-            AlipayTradeCancelResponse response = aliPayClient.cancelOrder(orderId, false);
+            AlipayTradeCancelResponse response = aliPayClient.cancelOrder(request.getOrderId(), true);
             if (response.isSuccess()) {
                 // 撤销成功，保存订单状态
                 OrderDO updateDo = new OrderDO();
                 updateDo.setId(orderDO.getId());
                 updateDo.setOrderStatus(TradeStatusEnum.TRADE_CLOSED.getStatus());
                 String action = response.getAction();
+                RedisService redisService = SpringUtil.getBean(RedisService.class);
                 if ("close".equals(action)) {
-                    return gson.toJson(response);
+                    updateOrder(updateDo);
                 } else if ("refund".equals(action)) {
-                    return gson.toJson(response);
+                    log.info("用户已支付，触发退款操作");
+                    updateOrder(updateDo);
+                    // 恢复VIP时间到之前状态
+                    String timeValue = redisService.getValue(USER_VIP_INFO_KEY_SUFFIX + COMMON.getType() + ":" + request.getUser().getId());
+                    String[] split = timeValue.split("#");
+                    UserDO userDO = new UserDO();
+                    userDO.setId(request.getUser().getId());
+                    LocalDateTime vipStartTime = "null".equals(split[0]) ? null : TimeUtils.strToDateTime(split[0]);
+                    LocalDateTime vipEndTime = "null".equals(split[1]) ? null : TimeUtils.strToDateTime(split[1]);
+                    userDO.setStartTime(vipStartTime);
+                    userDO.setVipEndTime(vipEndTime);
+                    UserService userService = SpringUtil.getBean(UserService.class);
+                    int userCnt = userService.updateUserInfo(userDO);
+                    if (userCnt <= 0) {
+                        log.error("用户状态更新失败：{}", orderDO);
+                        throw new ServiceException("用户状态更新失败");
+                    }
+                } else {
+                    // 交易仍未创建
+                    log.info("交易仍未创建，关闭订单：{}", request.getOrderId());
+                    getBaseMapper().update(updateDo, new LambdaUpdateWrapper<OrderDO>().eq(OrderDO::getId, orderDO.getId())
+                            .eq(OrderDO::getOrderStatus, TradeStatusEnum.WAIT_BUYER_PAY.getStatus()));
                 }
+                redisService.deleteKey(ORDER_KEY_SUFFIX + request.getUserType() + ":" + request.getUserId());
             }
         }
-        return "订单无需撤销";
+
+//        }
+        return "订单撤销成功";
     }
 
     @Override

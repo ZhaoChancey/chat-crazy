@@ -15,5 +15,5 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface OrderService extends IService<OrderDO> {
 
-    void successOrderAndUser(UserDO userDO, OrderDO orderDO);
+    ResultCode successOrderAndUser(UserDO userDO, OrderDO orderDO);
 }

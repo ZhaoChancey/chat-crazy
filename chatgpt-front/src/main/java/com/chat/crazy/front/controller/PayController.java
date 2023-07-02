@@ -61,7 +61,7 @@ public class PayController {
     @Operation(summary = "主动关闭订单")
     @FrontPreAuth
     public R<String> cancelOrder(@RequestBody PayOrderRequest request) {
-        return R.data(payService.cancelOrder(request.getOrderId()));
+        return R.data(payService.cancelOrder(request));
     }
 
 }

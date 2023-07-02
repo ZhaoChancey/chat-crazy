@@ -38,7 +38,7 @@ public interface PayService extends IService<OrderDO> {
      * @param orderId 订单id
      * @return
      */
-    String cancelOrder(String orderId);
+    String cancelOrder(PayOrderRequest request);
 
     String notifyAsync(HttpServletRequest request) throws AlipayApiException;
 }
