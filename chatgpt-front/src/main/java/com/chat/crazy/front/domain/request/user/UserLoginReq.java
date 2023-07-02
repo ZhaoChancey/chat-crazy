@@ -18,7 +18,7 @@ public class UserLoginReq {
     @Schema(title = "手机号")
     private String phone;
 
-    @NotEmpty
+//    @NotEmpty
     @Schema(title = "验证码")
-    private String code;
+    private String code = "";
 }
