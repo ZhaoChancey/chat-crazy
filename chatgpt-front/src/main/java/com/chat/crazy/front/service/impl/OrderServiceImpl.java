@@ -59,7 +59,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, OrderDO> implemen
             updateDo.setId(userDO.getId());
             LocalDateTime vipStartTime = LocalDateTime.now();
             LocalDateTime vipEndTime = vipStartTime.plusDays(packageEnum.getDays());
-            updateDo.setStartTime(vipStartTime);
+            updateDo.setVipStartTime(vipStartTime);
             updateDo.setVipEndTime(vipEndTime);
             int userCnt = userService.updateUserInfo(updateDo);
             if (userCnt <= 0) {
