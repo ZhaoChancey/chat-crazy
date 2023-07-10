@@ -64,6 +64,21 @@ public class OrderDO {
     private Integer orderStatus;
 
     /**
+     * 通知校验ID
+     */
+    private String notifyId;
+
+    /**
+     * 交易创建时间
+     */
+    private LocalDateTime gmtCreateTime;
+
+    /**
+     * 交易付款时间
+     */
+    private LocalDateTime gmtPaymentTime;
+
+    /**
      * 创建时间
      */
 //    @TableField(fill = FieldFill.INSERT)

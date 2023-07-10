@@ -43,6 +43,9 @@ public class MdcFilter implements Filter {
         MDC.put(ApplicationConstant.TRACE_ID, currTraceId);
     }
 
+    public static String getCurrTraceId() {
+        return MDC.get(ApplicationConstant.TRACE_ID);
+    }
     public static void cleanCurrMDCTraceId() {
         MDC.remove(ApplicationConstant.TRACE_ID);
     }

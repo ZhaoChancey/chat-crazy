@@ -121,4 +121,8 @@ public class RedisService {
         }
         return stringBuilder.toString();
     }
+
+    public Boolean setNx(String key, String value, Integer timeout, TimeUnit timeUnit) {
+        return chatRedisTemplate.opsForValue().setIfAbsent(key, value, timeout, timeUnit);
+    }
 }

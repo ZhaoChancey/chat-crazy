@@ -1,9 +1,12 @@
 package com.chat.crazy.base.client;
 
+import cn.hutool.json.JSONObject;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.request.AlipayTradeCancelRequest;
 import com.alipay.api.request.AlipayTradePrecreateRequest;
 import com.alipay.api.request.AlipayTradeQueryRequest;
+import com.alipay.api.response.AlipayTradeCancelResponse;
 import com.alipay.api.response.AlipayTradePrecreateResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.chat.crazy.base.config.PayConfig;
@@ -27,6 +30,7 @@ public class AliPayClient {
 
     private final Gson gson = new Gson();
     public AlipayTradePrecreateResponse tradePreCreate(AlipayPreCreateClientRequest preCreateBo) {
+        log.info("订单创建请求：{}", preCreateBo);
         PayConfig.AliPayConfig aliPayConfig = payConfig.getAliPay();
         AlipayClient alipayClient = new DefaultAlipayClient(aliPayConfig.getGatewayUrl(), aliPayConfig.getAppId(),
                 aliPayConfig.getPrivateKey(), "json", "UTF-8",
@@ -51,14 +55,18 @@ public class AliPayClient {
         return result;
     }
 
-    public AlipayTradeQueryResponse getOrderStatus(String orderId) {
+    public AlipayTradeQueryResponse getOrderStatus(String orderId, boolean isLocal) {
         PayConfig.AliPayConfig aliPayConfig = payConfig.getAliPay();
         AlipayClient alipayClient = new DefaultAlipayClient(aliPayConfig.getGatewayUrl(), aliPayConfig.getAppId(),
                 aliPayConfig.getPrivateKey(), "json", "UTF-8",
                 aliPayConfig.getAlipayPublicKey(), "RSA2");
         AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("out_trade_no", orderId);
+        if (isLocal) {
+            jsonObject.addProperty("out_trade_no", orderId);
+        } else {
+            jsonObject.addProperty("trade_no", orderId);
+        }
         request.setBizContent(jsonObject.toString());
         AlipayTradeQueryResponse response = null;
         try {
@@ -68,11 +76,46 @@ public class AliPayClient {
             throw new ServiceException(ResultCode.INTERNAL_SERVER_ERROR.getMessage());
         }
         if (response.isSuccess()) {
-            log.info("aplipay query order status execute success: {}", response);
+            log.info("aplipay query order status execute success: {}", queryResToString(response));
         } else {
             log.error("aplipay query order status execute service exception: {}", response);
+
         }
         return response;
     }
 
+    public AlipayTradeCancelResponse cancelOrder(String orderId, boolean isLocal) {
+        PayConfig.AliPayConfig aliPayConfig = payConfig.getAliPay();
+        AlipayClient alipayClient = new DefaultAlipayClient(aliPayConfig.getGatewayUrl(), aliPayConfig.getAppId(),
+                aliPayConfig.getPrivateKey(), "json", "UTF-8",
+                aliPayConfig.getAlipayPublicKey(), "RSA2");
+        AlipayTradeCancelRequest request = new AlipayTradeCancelRequest();
+        JsonObject bizContent = new JsonObject();
+        if (isLocal) {
+            bizContent.addProperty("out_trade_no", orderId);
+        } else {
+            bizContent.addProperty("trade_no", orderId);
+        }
+        request.setBizContent(bizContent.toString());
+
+        AlipayTradeCancelResponse response;
+        try {
+            response = alipayClient.execute(request);
+        } catch (Exception e) {
+            log.error("aplipay cancel order status orderId: {}, error: {}", orderId, ExceptionUtils.getMessage(e));
+            throw new ServiceException(ResultCode.INTERNAL_SERVER_ERROR.getMessage());
+        }
+        if (response.isSuccess()) {
+            log.info("aplipay cancel order status execute success: {}", response);
+        } else {
+            log.error("aplipay cancel order status execute service exception: {}", response);
+
+        }
+        return response;
+    }
+
+    public String queryResToString(AlipayTradeQueryResponse response) {
+        return "AlipayTradeQueryResponse(trade_no=" + response.getTradeNo();
+
+    }
 }

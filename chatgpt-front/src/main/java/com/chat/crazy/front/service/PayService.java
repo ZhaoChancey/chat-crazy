@@ -4,6 +4,7 @@ import com.alipay.api.AlipayApiException;
 import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chat.crazy.base.domain.entity.OrderDO;
+import com.chat.crazy.front.domain.request.pay.PayOrderRequest;
 import com.chat.crazy.front.domain.request.pay.PayPreCreateRequest;
 import com.chat.crazy.front.domain.vo.pay.PayOrderStatusVO;
 import com.chat.crazy.front.domain.vo.pay.PayPackageVO;
@@ -27,17 +28,17 @@ public interface PayService extends IService<OrderDO> {
 
     /**
      * 获取支付状态
-     * @param orderId 订单id
+     * @param request
      * @return
      */
-    AlipayTradeQueryResponse getOrderStatus(String orderId);
+    PayOrderStatusVO getOrderStatus(PayOrderRequest request);
 
     /**
      * 主动关闭订单
      * @param orderId 订单id
      * @return
      */
-    String cancelOrder(String orderId);
+    String cancelOrder(PayOrderRequest request);
 
     String notifyAsync(HttpServletRequest request) throws AlipayApiException;
 }
