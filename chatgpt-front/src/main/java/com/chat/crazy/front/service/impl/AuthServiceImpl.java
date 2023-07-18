@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -109,8 +110,12 @@ public class AuthServiceImpl implements AuthService {
                 userDO.setPhone(req.getPhone());
                 userDO.setStatus(UserStatusEnum.VALID.getStatus());
                 userDO.setNickName(ApplicationConstant.DEFAULT_NICKNAME);
+                userDO.setVipStartTime(now);
+                userDO.setVipEndTime(LocalDateTime.parse("2023-08-15 23:59:59", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                 userDO.setStartTime(now);
-                userDO.setEndTime(now.plusDays(3));
+                userDO.setEndTime(LocalDateTime.parse("2023-08-15 23:59:59", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+//                userDO.setStartTime(now);
+//                userDO.setEndTime(now.plusDays(3));
                 userService.save(userDO);
                 user = userDO;
             }

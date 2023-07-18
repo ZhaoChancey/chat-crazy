@@ -48,10 +48,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             LocalDateTime vipStartTime = userDO.getVipStartTime();
             LocalDateTime vipEndTime = userDO.getVipEndTime();
             identity.setVipType(getVipType(vipStartTime, vipEndTime));
-            identity.setStartTs(identity.getVipType() == VipTypeEnum.NORMAL.getType() ? 
-                    TimeUtils.getMilliSecond(startTime) : TimeUtils.getMilliSecond(vipStartTime));
-            identity.setEndTs(identity.getVipType() == VipTypeEnum.NORMAL.getType() ?
-                    TimeUtils.getMilliSecond(endTime) : TimeUtils.getMilliSecond(vipEndTime));
+            identity.setStartTs(TimeUtils.getMilliSecond(startTime));
+            identity.setEndTs(TimeUtils.getMilliSecond(endTime));
+            identity.setVipStartTs(identity.getVipType() == VipTypeEnum.VIP.getType() ? TimeUtils.getMilliSecond(vipStartTime) : null);
+            identity.setVipEndTs(identity.getVipType() == VipTypeEnum.VIP.getType() ? TimeUtils.getMilliSecond(vipEndTime) : null);
             LocalDateTime now = LocalDateTime.now();
             identity.setFreeLastDays(Math.max((int) Duration.between(now, endTime).toDays(), 0));
             identity.setVipLastDays(identity.getVipType() == VipTypeEnum.VIP.getType() ?
