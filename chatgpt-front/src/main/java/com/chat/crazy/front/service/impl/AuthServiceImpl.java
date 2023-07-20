@@ -4,11 +4,14 @@ import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.chat.crazy.base.domain.entity.InviteCodeDO;
 import com.chat.crazy.base.domain.query.ChatRequest;
+import com.chat.crazy.base.enums.InviteCodeStatusEnum;
 import com.chat.crazy.base.service.impl.RedisService;
-import com.chat.crazy.front.service.UserActiveService;
-import com.chat.crazy.front.service.UserService;
-import com.chat.crazy.front.service.VirtualService;
+import com.chat.crazy.front.domain.request.user.UserRegisterReq;
+import com.chat.crazy.front.domain.vo.user.InviteCodeVo;
+import com.chat.crazy.front.domain.vo.user.UserRegisterVo;
+import com.chat.crazy.front.service.*;
 import com.chat.crazy.base.client.SmsClient;
 import com.chat.crazy.base.constant.ApplicationConstant;
 import com.chat.crazy.base.domain.entity.UserActiveDO;
@@ -26,7 +29,6 @@ import com.chat.crazy.front.domain.request.user.UserLoginReq;
 import com.chat.crazy.front.domain.request.user.VirtualIdReq;
 import com.chat.crazy.front.domain.vo.user.UserInfoVo;
 import com.chat.crazy.front.domain.vo.user.UserLoginVo;
-import com.chat.crazy.front.service.AuthService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -42,6 +44,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.chat.crazy.base.constant.RedisConstant.*;
+import static com.chat.crazy.base.handler.response.ResultCode.*;
 
 /**
  * @author hncboy
@@ -51,6 +54,8 @@ import static com.chat.crazy.base.constant.RedisConstant.*;
 @Service
 @Slf4j
 public class AuthServiceImpl implements AuthService {
+    @Resource
+    InviteCodeService inviteCodeService;
 
     @Resource
     RedisService redisService;
@@ -98,6 +103,61 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public UserRegisterVo register(UserRegisterReq req) {
+        UserDO user = userService.getOne(new LambdaQueryWrapper<UserDO>().eq(UserDO::getPhone, req.getPhone()));
+        if (user != null) {
+            // 保存用户
+            throw new ServiceException("用户信息已存在，请登录");
+        }
+
+        if (StringUtils.isEmpty(req.getCode()) && StringUtils.isEmpty(req.getInviteCode())) {
+            throw new ServiceException("请填写验证码和邀请码");
+        }
+        String code = getPhoneCode(req.getPhone());
+        if (!code.equals(req.getCode())) {
+            throw new ServiceException("请填写正确的验证码");
+        }
+        InviteCodeDO codeDO = inviteCodeService.getByInviteCode(req.getInviteCode());
+        if (codeDO == null) {
+            throw new ServiceException("请填写正确的邀请码");
+        }
+        // 保存用户
+        LocalDateTime now = LocalDateTime.now().withNano(0);
+        UserDO userDO = new UserDO();
+        userDO.setPhone(req.getPhone());
+        userDO.setStatus(UserStatusEnum.VALID.getStatus());
+        userDO.setNickName(ApplicationConstant.DEFAULT_NICKNAME);
+        userDO.setIsInvitePerm(0);
+        userDO.setInviteCodeId(codeDO.getId());
+        userDO.setVipStartTime(now);
+        userDO.setVipEndTime(LocalDateTime.parse("2023-08-15 23:59:59", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        userDO.setStartTime(now);
+        userDO.setEndTime(LocalDateTime.parse("2023-08-15 23:59:59", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        userService.save(userDO);
+
+        UserActiveDO userActiveDO = new UserActiveDO();
+        userActiveDO.setUserId(userDO.getId());
+        userActiveDO.setActiveType(ActiveStatusEnum.REGISTER.getStatus());
+        userActiveDO.setActiveTime(now);
+        userActiveDO.setIp(WebUtil.getIp());
+        userActiveService.save(userActiveDO);
+
+        InviteCodeDO updateDO = new InviteCodeDO();
+        updateDO.setId(codeDO.getId());
+        updateDO.setStatus(InviteCodeStatusEnum.INVALID.getStatus());
+        inviteCodeService.update(updateDO);
+
+        // 生成token
+        Instant instant = now.toInstant(ZoneOffset.of("+8"));
+        String token = TokenUtil.create(userDO.getId().toString(), instant);
+        UserRegisterVo res = new UserRegisterVo();
+        res.setToken(token);
+        // 删除验证码，使之失效
+        deletePhoneCode(req.getPhone());
+        return null;
+    }
+
+    @Override
     public UserLoginVo login(UserLoginReq req) {
         String code = getPhoneCode(req.getPhone());
         if (WHITE_USERS.contains(req.getPhone()) || (StringUtils.isNotEmpty(code) && req.getCode().equals(code))) {
@@ -106,18 +166,7 @@ public class AuthServiceImpl implements AuthService {
             UserDO user = userService.getOne(new LambdaQueryWrapper<UserDO>().eq(UserDO::getPhone, req.getPhone()));
             if (user == null) {
                 // 保存用户
-                UserDO userDO = new UserDO();
-                userDO.setPhone(req.getPhone());
-                userDO.setStatus(UserStatusEnum.VALID.getStatus());
-                userDO.setNickName(ApplicationConstant.DEFAULT_NICKNAME);
-                userDO.setVipStartTime(now);
-                userDO.setVipEndTime(LocalDateTime.parse("2023-08-15 23:59:59", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-                userDO.setStartTime(now);
-                userDO.setEndTime(LocalDateTime.parse("2023-08-15 23:59:59", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-//                userDO.setStartTime(now);
-//                userDO.setEndTime(now.plusDays(3));
-                userService.save(userDO);
-                user = userDO;
+                throw new ServiceException("用户信息不存在，请注册");
             }
             // 记录登录时间
             UserActiveDO userActiveDO = new UserActiveDO();
@@ -137,6 +186,34 @@ public class AuthServiceImpl implements AuthService {
         } else {
             throw new AuthException("验证码校验失败，请重新输入");
         }
+    }
+
+    @Override
+    public InviteCodeVo inviteCode(ChatRequest request) {
+        if (request.getUser().getIsInvitePerm() != 1) {
+            throw new ServiceException(USER_INVITE_CODE_PERM_ERROR);
+        }
+        Integer userId = request.getUserId();
+        int retry = 2;
+        String inviteCode = CommonUtils.generateRandomString(8);
+        InviteCodeDO inviteCodeDO = new InviteCodeDO();
+        inviteCodeDO.setInviteCode(inviteCode);
+        inviteCodeDO.setStatus(InviteCodeStatusEnum.VALID.getStatus());
+        inviteCodeDO.setUserId(userId);
+        boolean isSuc = inviteCodeService.save(inviteCodeDO);
+        while (!isSuc && retry > 0) {
+            retry--;
+            String newCode = CommonUtils.generateRandomString(8);
+            inviteCodeDO.setInviteCode(newCode);
+            isSuc = inviteCodeService.save(inviteCodeDO);
+        }
+
+        if (!isSuc) {
+            throw new ServiceException(USER_INVITE_CODE_ADD_ERROR);
+        }
+        InviteCodeVo inviteCodeVo = new InviteCodeVo();
+        inviteCodeVo.setInviteCode(inviteCodeDO.getInviteCode());
+        return inviteCodeVo;
     }
 
     public String genVirId(VirtualIdReq req) {

@@ -5,15 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * 用户登录状态
+ * 邀请码状态
  */
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public enum ActiveStatusEnum {
-    LOGIN (0, "登录"),
-    EXIT  (1, "退出登录"),
-    REGISTER  (3, "注册"),
+public enum InviteCodeStatusEnum {
+    VALID (0, "未使用"),
+    INVALID(1, "已使用")
     ;
 
     private int status;

@@ -82,12 +82,15 @@ CREATE TABLE IF NOT EXISTS user_info (
     nick_name VARCHAR(32) DEFAULT '小柴' COMMENT '昵称',
     start_time DATETIME NOT NULL  COMMENT '生效日期',
     end_time DATETIME NOT NULL  COMMENT '失效日期',
+    invite_code_id int not null default -1 COMMENT '用户绑定的邀请码ID',
+    is_invite_perm int not null default 0 COMMENT '是否具备生成邀请码能力,1:具备',
     vip_start_time DATETIME COMMENT 'vip-生效日期',
     vip_end_time DATETIME COMMENT 'vip-失效日期',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (id),
-    UNIQUE KEY idx_phone(phone)
+    UNIQUE KEY idx_phone(phone),
+    UNIQUE KEY idx_code(invite_code_id)
     ) ENGINE=InnoDB AUTO_INCREMENT=2000 DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
 
 -- 用户登录信息表
@@ -131,3 +134,15 @@ CREATE TABLE IF NOT EXISTS chat_distribute (
     UNIQUE INDEX `idx_port`(`port`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT = Dynamic COMMENT='分布式id';
 insert into chat_distribute(port, worker_id, datacenter_id) values("3002", 0, 0), ("3003", 1, 0), ("3004", 2, 0);
+
+-- 邀请码表
+CREATE TABLE IF NOT EXISTS chat_invite_code (
+    id int NOT NULL AUTO_INCREMENT COMMENT '主键',
+    invite_code VARCHAR(16) NOT NULL COMMENT '邀请码',
+    user_id int NOT NULL COMMENT '生成该邀请码的用户ID',
+    status int not null default 0 COMMENT '邀请码状态，0：未使用，1：已使用',
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (id),
+    UNIQUE INDEX `idx_code`(`invite_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='邀请码表';

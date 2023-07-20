@@ -45,6 +45,15 @@ public class UserDO {
     LocalDateTime endTime;
 
     /**
+     * 邀请码ID
+     */
+    Integer inviteCodeId;
+
+    /**
+     * 是否具备生成邀请码能力,1:具备
+     */
+    Integer isInvitePerm;
+    /**
      * vip用户-生效日期
      */
     LocalDateTime vipStartTime;

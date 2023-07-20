@@ -32,6 +32,7 @@ public class UserInfoVo {
         Long vipStartTs;
         Long vipEndTs;
         Integer vipLastDays;
+        Integer masterType;
 //        Boolean isUsed;
     }
 }

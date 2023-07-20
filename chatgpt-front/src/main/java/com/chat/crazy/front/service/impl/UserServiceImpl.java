@@ -36,6 +36,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             identity.setEndTs(0L);
             identity.setVipStartTs(0L);
             identity.setVipEndTs(0L);
+            identity.setMasterType(0);
 //            identity.setIsUsed(true);
             userInfoRes.setIdentity(identity);
             userInfoRes.setNickName(ApplicationConstant.DEFAULT_NICKNAME);
@@ -57,6 +58,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             identity.setVipLastDays(identity.getVipType() == VipTypeEnum.VIP.getType() ?
                             Math.max((int) Duration.between(now, vipEndTime).toDays(), 0) : null);
 //            identity.setIsUsed(isUserExpire(identity.getVipType(), endTime, vipEndTime));
+            identity.setMasterType(userDO.getIsInvitePerm());
             userInfoRes.setIdentity(identity);
             userInfoRes.setId(userDO.getId());
             userInfoRes.setNickName(userDO.getNickName());

@@ -3,6 +3,9 @@ package com.chat.crazy.front.controller;
 import com.chat.crazy.base.annotation.FrontPreAuth;
 import com.chat.crazy.base.domain.query.ChatRequest;
 import com.chat.crazy.base.handler.response.R;
+import com.chat.crazy.front.domain.request.user.UserRegisterReq;
+import com.chat.crazy.front.domain.vo.user.InviteCodeVo;
+import com.chat.crazy.front.domain.vo.user.UserRegisterVo;
 import com.chat.crazy.front.service.AuthService;
 import com.chat.crazy.front.domain.request.user.SendMsgReq;
 import com.chat.crazy.front.domain.request.user.UserLoginReq;
@@ -53,10 +56,24 @@ public class AuthController {
     }
 
     @FrontPreAuth(tokenAuth = false)
+    @Operation(summary = "注册")
+    @PostMapping("/register")
+    public R<UserRegisterVo> register(@RequestBody UserRegisterReq req) {
+        return R.success(authService.register(req));
+    }
+
+    @FrontPreAuth(tokenAuth = false)
     @Operation(summary = "登录")
     @PostMapping("/login")
-    public R<UserLoginVo> login(@RequestBody @Validated UserLoginReq req) {
+    public R<UserLoginVo> login(@RequestBody UserLoginReq req) {
         return R.success(authService.login(req));
+    }
+
+    @FrontPreAuth
+    @Operation(summary = "生成邀请码")
+    @PostMapping("/inviteCode")
+    public R<InviteCodeVo> inviteCode(ChatRequest req) {
+        return R.success(authService.inviteCode(req));
     }
 
     @FrontPreAuth(virIdAuth = false)

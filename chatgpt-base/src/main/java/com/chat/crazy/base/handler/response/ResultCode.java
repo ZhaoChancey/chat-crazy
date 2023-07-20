@@ -36,6 +36,9 @@ public enum ResultCode {
     ALI_TRADE_PRE_CREATE_ERROR(10004, "支付宝预下单接口异常"),
     ALI_TRADE_ORDER_QUERY_ERROR(10005, "支付宝订单查询接口异常"),
     ALI_TRADE_ORDER_REPEAT_ERROR(10006, "请不要重复下单"),
+
+    USER_INVITE_CODE_ADD_ERROR(20001, "邀请码生成失败，请稍后重试"),
+    USER_INVITE_CODE_PERM_ERROR(20002, "没有生成邀请码的权限"),
     ;
 
     /**
