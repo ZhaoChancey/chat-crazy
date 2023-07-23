@@ -154,7 +154,7 @@ public class AuthServiceImpl implements AuthService {
         res.setToken(token);
         // 删除验证码，使之失效
         deletePhoneCode(req.getPhone());
-        return null;
+        return res;
     }
 
     @Override
