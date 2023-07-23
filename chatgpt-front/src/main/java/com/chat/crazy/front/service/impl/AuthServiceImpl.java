@@ -166,7 +166,7 @@ public class AuthServiceImpl implements AuthService {
             UserDO user = userService.getOne(new LambdaQueryWrapper<UserDO>().eq(UserDO::getPhone, req.getPhone()));
             if (user == null) {
                 // 保存用户
-                throw new ServiceException("用户信息不存在，请注册");
+                throw new ServiceException(AUTH_USER_NOT_EXIST_ERROR);
             }
             // 记录登录时间
             UserActiveDO userActiveDO = new UserActiveDO();
