@@ -65,11 +65,11 @@ public class ApiKeyResponseEmitter implements ResponseEmitter {
             messages.removeFirst();
         }
         // 系统消息
-        Message systemMessage = Message.builder()
-                .role(Message.Role.SYSTEM)
-                .content(chatProcessRequest.getSystemMessage())
-                .build();
-        messages.addFirst(systemMessage);
+//        Message systemMessage = Message.builder()
+//                .role(Message.Role.SYSTEM)
+//                .content(chatProcessRequest.getSystemMessage())
+//                .build();
+//        messages.addFirst(systemMessage);
 
         // 获取 包含上下文 的 token 数量
         int totalTokenCount = TikTokensUtil.tokens(chatMessageDO.getModelName(), messages);

@@ -34,7 +34,7 @@ public class ChatProcessRequest extends ChatRequest {
     private Long sessionId;
 
     @Schema(title = "gpt版本")
-    private Integer version;
+    private Integer version = 0;
 
     // 后端内部使用结构
     private Integer userId;
