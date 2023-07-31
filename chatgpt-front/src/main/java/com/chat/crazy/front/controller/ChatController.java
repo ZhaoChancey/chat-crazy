@@ -46,7 +46,7 @@ public class ChatController {
     @FrontPreAuth(tokenAuth = false)
     @PostMapping("/msg/send")
     public ResponseBodyEmitter sendMessage(@RequestBody @Validated ChatProcessRequest chatProcessRequest, HttpServletResponse response) {
-        chatProcessRequest.setSystemMessage("You are ChattGPT, a large language model trained by OpenAI. Answer as concisely as possible.\\nKnowledge cutoff: 2021-09-01\\nCurrent date: ".concat(DateUtil.today()));
+//        chatProcessRequest.setSystemMessage("You are ChattGPT, a large language model trained by OpenAI. Answer as concisely as possible.\\nKnowledge cutoff: 2021-09-01\\nCurrent date: ".concat(DateUtil.today()));
         response.setHeader("cache-control", "public, max-age=0, must-revalidate");
         response.setHeader("X-Accel-Buffering", "no");
 //        response.setContentType(MediaType.TEXT_EVENT_STREAM_VALUE);

@@ -2,6 +2,7 @@ package com.chat.crazy.front.domain.request.chat;
 
 import com.chat.crazy.base.domain.entity.ChatRoomDO;
 import com.chat.crazy.base.domain.query.ChatRequest;
+import com.unfbx.chatgpt.entity.chat.ChatCompletion;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,10 +33,14 @@ public class ChatProcessRequest extends ChatRequest {
     @Schema(title = "聊天窗口id")
     private Long sessionId;
 
+    @Schema(title = "gpt版本")
+    private Integer version;
+
     // 后端内部使用结构
     private Integer userId;
     private Integer userType;
     private ChatRoomDO chatRoomDO;
+    private ChatCompletion.Model model;
     
     @Data
     @Schema(title = "消息配置")

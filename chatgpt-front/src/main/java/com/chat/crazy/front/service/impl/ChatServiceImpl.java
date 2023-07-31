@@ -24,6 +24,7 @@ import com.chat.crazy.front.handler.emitter.RateLimiterEmitterChain;
 import com.chat.crazy.front.handler.emitter.ResponseEmitterChain;
 import com.chat.crazy.front.handler.emitter.SensitiveWordEmitterChain;
 import com.chat.crazy.front.service.*;
+import com.unfbx.chatgpt.entity.chat.ChatCompletion;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -107,7 +108,7 @@ public class ChatServiceImpl implements ChatService {
             throw new ServiceException("聊天窗口不存在");
         }
         chatProcessRequest.setChatRoomDO(validSession);
-        
+        chatProcessRequest.setModel(chatProcessRequest.getVersion() == 0 ? ChatCompletion.Model.GPT_3_5_TURBO : ChatCompletion.Model.GPT_4_0613);
         // 超时时间设置 3 分钟
         ResponseBodyEmitter emitter = new ResponseBodyEmitter(3 * 60 * 1000L);
         emitter.onCompletion(() -> log.debug("请求参数：{}，Front-end closed the emitter connection.", ObjectMapperUtil.toJson(chatProcessRequest)));

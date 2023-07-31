@@ -86,8 +86,8 @@ public class ApiKeyResponseEmitter implements ResponseEmitter {
         }
         // 构建聊天参数
         ChatCompletion chatCompletion = ChatCompletion.builder()
-                .maxTokens(ApiKeyTokenLimiterEnum.getTokenLimitByOuterJarModelName(chatConfig.getOpenaiApiModel()) - totalTokenCount - 1)
-                .model(chatConfig.getOpenaiApiModel())
+                .maxTokens(ApiKeyTokenLimiterEnum.getTokenLimitByOuterJarModelName(chatProcessRequest.getModel().getName()) - totalTokenCount - 1)
+                .model(chatProcessRequest.getModel().getName())
                 // [0, 2] 越低越精准
                 .temperature(0.8)
                 .topP(1.0)

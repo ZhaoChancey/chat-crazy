@@ -55,7 +55,7 @@ public class ChatMessageServiceImpl extends ServiceImpl<ChatMessageMapper, ChatM
         chatMessageDO.setUserId(chatProcessRequest.getUserId());
         chatMessageDO.setUserType(chatProcessRequest.getUserType());
         chatMessageDO.setContent(chatProcessRequest.getPrompt());
-        chatMessageDO.setModelName(chatConfig.getOpenaiApiModel());
+        chatMessageDO.setModelName(chatProcessRequest.getModel().getName());
         chatMessageDO.setOriginalData(null);
         chatMessageDO.setPromptTokens(-1);
         chatMessageDO.setCompletionTokens(-1);
