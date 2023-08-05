@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chat.crazy.base.constant.ApplicationConstant;
 import com.chat.crazy.base.domain.entity.UserDO;
 import com.chat.crazy.base.domain.query.ChatRequest;
+import com.chat.crazy.base.enums.PackageTypeEnum;
 import com.chat.crazy.front.domain.request.chat.ChatProcessRequest;
 import com.chat.crazy.front.service.UserService;
 import com.chat.crazy.base.enums.VipTypeEnum;
@@ -32,6 +33,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         if (request.getUser() == null) {
             // 未登录
             identity.setVipType(VipTypeEnum.NOT_LOGIN.getType());
+            identity.setPackageType(PackageTypeEnum.NO_PACKAGE.getId());
             identity.setStartTs(0L);
             identity.setEndTs(0L);
             identity.setVipStartTs(0L);
@@ -57,6 +59,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             identity.setFreeLastDays(Math.max((int) Duration.between(now, endTime).toDays(), 0));
             identity.setVipLastDays(identity.getVipType() == VipTypeEnum.VIP.getType() ?
                             Math.max((int) Duration.between(now, vipEndTime).toDays(), 0) : null);
+            identity.setPackageType(identity.getVipType() == VipTypeEnum.VIP.getType() ? userDO.getPackageType()
+                                        : PackageTypeEnum.NO_PACKAGE.getId());
 //            identity.setIsUsed(isUserExpire(identity.getVipType(), endTime, vipEndTime));
             identity.setMasterType(userDO.getIsInvitePerm());
             userInfoRes.setIdentity(identity);

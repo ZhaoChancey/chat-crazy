@@ -74,6 +74,8 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, OrderDO> implements P
     @Resource
     OrderService orderService;
 
+    @Resource
+    UserService userService;
     private static final int SUCCESS = 0;
     private static final int WAIT = 1;
     private static final int CLOSED = 2;
@@ -86,11 +88,22 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, OrderDO> implements P
             PayPackageVO.PayPackageItem.builder().id(YEAR_VIP.getId()).subject(YEAR_VIP.getSubject()).price(YEAR_VIP.getPrice()).build()
     );
 
+    private static final List<PayPackageVO.PayPackageItem> PLUS_PACKAGE_INFO = Arrays.asList(
+            PayPackageVO.PayPackageItem.builder().id(PLUS_MONTH_VIP.getId()).subject(PLUS_MONTH_VIP.getSubject()).price(PLUS_MONTH_VIP.getPrice()).build(),
+            PayPackageVO.PayPackageItem.builder().id(PLUS_SEASON_VIP.getId()).subject(PLUS_SEASON_VIP.getSubject()).price(PLUS_SEASON_VIP.getPrice()).build(),
+            PayPackageVO.PayPackageItem.builder().id(PLUS_YEAR_VIP.getId()).subject(PLUS_YEAR_VIP.getSubject()).price(PLUS_YEAR_VIP.getPrice()).build()
+    );
+    private static final Map<String, List<PayPackageVO.PayPackageItem>> PACKAGE_MAP = new HashMap<>();
+    static {
+        PACKAGE_MAP.put("1", PACKAGE_INFO);
+        PACKAGE_MAP.put("2", PLUS_PACKAGE_INFO);
+    }
+
     @Override
     public PayPackageVO getPackageInfo() {
         PayPackageVO payPackageVO = new PayPackageVO();
         payPackageVO.setExtendStr("");
-        payPackageVO.setPackages(PACKAGE_INFO);
+        payPackageVO.setPackages(PACKAGE_MAP);
         return payPackageVO;
     }
 
@@ -106,10 +119,10 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, OrderDO> implements P
         }
 
         try {
-            String orderCache = redisService.getValue(ORDER_KEY_SUFFIX + request.getUserType() + ":" + request.getUserId());
-            if (StringUtils.isNotEmpty(orderCache)) {
-                return gson.fromJson(orderCache, PayPreCreateVO.class);
-            }
+//            String orderCache = redisService.getValue(ORDER_KEY_SUFFIX + request.getUserType() + ":" + request.getUserId());
+//            if (StringUtils.isNotEmpty(orderCache)) {
+//                return gson.fromJson(orderCache, PayPreCreateVO.class);
+//            }
             PackageEnum packageEnum = typeOf(request.getPackageId());
             if (packageEnum == null) {
                 throw new ServiceException("套餐id错误");
@@ -252,71 +265,72 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, OrderDO> implements P
         } else if (orderDO.getOrderStatus() == TradeStatusEnum.TRADE_CLOSED.getStatus()) {
             vo.setTradeStatus(CLOSED);
         } else if (orderDO.getOrderStatus() == TradeStatusEnum.WAIT_BUYER_PAY.getStatus()) {
-            // 查询订单，2分钟后还没收到异步通知就主动查询支付宝
-//            Duration durationon = Duration.between(orderDO.getCreateTime(), LocalDateTime.now());
-//            if (duration.throwoMinutes() > 2) {
-            AlipayTradeQueryResponse response = aliPayClient.getOrderStatus(orderId, true);
-            int cnt = 2;
-            while ("20000".equals(response.getCode()) && "isp.unknow-error".equals(response.getSubCode()) && cnt > 0) {
-                cnt--;
-                log.error("订单状态主动查询重试, cnt: {}", cnt);
-                response = aliPayClient.getOrderStatus(orderId, true);
-            }
+            vo.setTradeStatus(WAIT);
+//            RedisService redisService = SpringUtil.getBean(RedisService.class);
+//            redisService.setValue(ORDER_KEY_SUFFIX + "order:sign:" + orderId, "success", 1, TimeUnit.HOURS);
 
-            if ("20000".equals(response.getCode()) && "isp.unknow-error".equals(response.getSubCode())) {
-                log.error("多次重试后请求支付宝异常，{}", response);
-            }
-
-            if ("ACQ.TRADE_NOT_EXIST".equals(response.getSubCode())) {
-                log.error("用户还未扫码");
-                vo.setTradeStatus(WAIT);
-                vo.setIsTrading(false);
-                return vo;
-            }
-            if (response.isSuccess()) {
-                if (TradeStatusEnum.WAIT_BUYER_PAY.getAliStatus().equals(response.getTradeStatus())) {
-                    vo.setTradeStatus(WAIT);
-                } else if (TradeStatusEnum.TRADE_SUCCESS.getAliStatus().equals(response.getTradeStatus()) ||
-                        TradeStatusEnum.TRADE_FINISHED.getAliStatus().equals(response.getTradeStatus())) {
-                    // 校验金额之类
-                    RedisService redisService = SpringUtil.getBean(RedisService.class);
-                    Boolean isSuc = redisService.setNx(DISTRIBUTE_LOCK_KEY_SUFFIX + "order:update:" + request.getUserType() + ":" + request.getUserId(), MdcFilter.getCurrTraceId(), 3, TimeUnit.SECONDS);
-                    if (!isSuc) {
-                        // 加锁失败
-                        throw new ServiceException(ResultCode.ALI_TRADE_ORDER_REPEAT_ERROR);
-                    }
-                    try {
-                        OrderDO updateOrder = new OrderDO();
-                        updateOrder.setId(orderDO.getId());
-                        updateOrder.setOrderStatus(TradeStatusEnum.statusOf(response.getTradeStatus()).getStatus()
-                        );
-                        updateOrder.setTransactionId(response.getTradeNo());
-                        updateOrder.setPackageId(orderDO.getPackageId());
-                        if (response.getSendPayDate() != null) {
-                            updateOrder.setGmtPaymentTime(response.getSendPayDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-                        }
-                        // 设置用户VIP时间
-                        ResultCode resultCode = orderService.successOrderAndUser(request.getUser(), updateOrder);
-                        if (resultCode == ResultCode.SUCCESS) {
-                            vo.setTradeStatus(SUCCESS);
-                            redisService.deleteKey(ORDER_KEY_SUFFIX + request.getUserType() + ":" + request.getUserId());
-                        } else {
-                            throw new ServiceException("订单成功状态设置失败");
-                        }
-                    } catch (Exception e) {
-                        vo.setTradeStatus(WAIT);
-                        log.error("订单状态查询接口异常，req: {}, error: {}", request, ExceptionUtils.getMessage(e));
-                    } finally {
-                        if (MdcFilter.getCurrTraceId().equals(redisService.getValue(DISTRIBUTE_LOCK_KEY_SUFFIX + "order:update:" + request.getUserType() + ":" + request.getUserId()))) {
-                            redisService.deleteKey(DISTRIBUTE_LOCK_KEY_SUFFIX + "order:update:" + request.getUserType() + ":" + request.getUserId());
-                        }
-                    }
-                } else if (TradeStatusEnum.TRADE_CLOSED.getAliStatus().equals(response.getTradeStatus())) {
-                    vo.setTradeStatus(CLOSED);
-                }
-            } else {
-                throw new ServiceException("订单查询异常");
-            }
+//            AlipayTradeQueryResponse response = aliPayClient.getOrderStatus(orderId, true);
+//            int cnt = 2;
+//            while ("20000".equals(response.getCode()) && "isp.unknow-error".equals(response.getSubCode()) && cnt > 0) {
+//                cnt--;
+//                log.error("订单状态主动查询重试, cnt: {}", cnt);
+//                response = aliPayClient.getOrderStatus(orderId, true);
+//            }
+//
+//            if ("20000".equals(response.getCode()) && "isp.unknow-error".equals(response.getSubCode())) {
+//                log.error("多次重试后请求支付宝异常，{}", response);
+//            }
+//
+//            if ("ACQ.TRADE_NOT_EXIST".equals(response.getSubCode())) {
+//                log.error("用户还未扫码");
+//                vo.setTradeStatus(WAIT);
+//                vo.setIsTrading(false);
+//                return vo;
+//            }
+//            if (response.isSuccess()) {
+//                if (TradeStatusEnum.WAIT_BUYER_PAY.getAliStatus().equals(response.getTradeStatus())) {
+//                    vo.setTradeStatus(WAIT);
+//                } else if (TradeStatusEnum.TRADE_SUCCESS.getAliStatus().equals(response.getTradeStatus()) ||
+//                        TradeStatusEnum.TRADE_FINISHED.getAliStatus().equals(response.getTradeStatus())) {
+//                    // 校验金额之类
+//                    Boolean isSuc = redisService.setNx(DISTRIBUTE_LOCK_KEY_SUFFIX + "order:update:" + request.getUserType() + ":" + request.getUserId(), MdcFilter.getCurrTraceId(), 5, TimeUnit.SECONDS);
+//                    if (!isSuc) {
+//                        // 加锁失败, 有其他进程或异步通知正在操作
+//                        vo.setTradeStatus(WAIT);
+//                        return vo;
+////                        throw new ServiceException(ResultCode.ALI_TRADE_ORDER_REPEAT_ERROR);
+//                    }
+//                    try {
+//                        OrderDO updateOrder = new OrderDO();
+//                        updateOrder.setId(orderDO.getId());
+//                        updateOrder.setOrderStatus(TradeStatusEnum.statusOf(response.getTradeStatus()).getStatus());
+//                        updateOrder.setTransactionId(response.getTradeNo());
+//                        updateOrder.setPackageId(orderDO.getPackageId());
+//                        if (response.getSendPayDate() != null) {
+//                            updateOrder.setGmtPaymentTime(response.getSendPayDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+//                        }
+//                        // 设置用户VIP时间
+//                        ResultCode resultCode = orderService.successOrderAndUser(request.getUser(), updateOrder);
+//                        if (resultCode == ResultCode.SUCCESS) {
+//                            vo.setTradeStatus(SUCCESS);
+//                            redisService.deleteKey(ORDER_KEY_SUFFIX + request.getUserType() + ":" + request.getUserId());
+//                        } else {
+//                            throw new ServiceException("订单成功状态设置失败");
+//                        }
+//                    } catch (Exception e) {
+//                        vo.setTradeStatus(WAIT);
+//                        log.error("订单状态查询接口异常，req: {}, error: {}", request, ExceptionUtils.getMessage(e));
+//                    } finally {
+//                        if (MdcFilter.getCurrTraceId().equals(redisService.getValue(DISTRIBUTE_LOCK_KEY_SUFFIX + "order:update:" + request.getUserType() + ":" + request.getUserId()))) {
+//                            redisService.deleteKey(DISTRIBUTE_LOCK_KEY_SUFFIX + "order:update:" + request.getUserType() + ":" + request.getUserId());
+//                        }
+//                    }
+//                } else if (TradeStatusEnum.TRADE_CLOSED.getAliStatus().equals(response.getTradeStatus())) {
+//                    vo.setTradeStatus(CLOSED);
+//                }
+//            } else {
+//                throw new ServiceException("订单查询异常");
+//            }
         } else {
             throw new ServiceException("订单状态获取失败，请刷新重试");
         }
@@ -400,7 +414,7 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, OrderDO> implements P
             for (int i = 0; i < values.length; i++) {
                 valueStr = (i == values.length - 1) ? valueStr + values[i] : valueStr + values[i] + ",";
             }
-            //乱码解决，这段代码在出现乱码时使用。 
+            //乱码解决，这段代码在出现乱码时使用。
             params.put(name, valueStr);
         }
         log.info("receive request notify: {}", params);
@@ -408,8 +422,9 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, OrderDO> implements P
         //公钥验签示例代码
         boolean signVerified = AlipaySignature.rsaCheckV1(params, payConfig.getAliPay().getAlipayPublicKey(), "UTF-8", "RSA2") ;
         //公钥证书验签示例代码
+        RedisService redisService = SpringUtil.getBean(RedisService.class);
 
-        if (signVerified){
+        if (signVerified) {
             //按照支付结果异步通知中的描述，对支付结果中的业务内容进行1\2\3\4二次校验，校验成功后在response中返回success
             String orderId = params.getOrDefault("out_trade_no", "");
             OrderDO orderDO = getOrderByOrderId(orderId);
@@ -417,6 +432,13 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, OrderDO> implements P
                 log.error("订单ID不存在：{}", orderId);
                 return "fail";
             }
+//
+//            if (orderDO.getOrderStatus() == TradeStatusEnum.TRADE_SUCCESS.getStatus() ||
+//                    orderDO.getOrderStatus() == TradeStatusEnum.TRADE_FINISHED.getStatus() ||
+//                        orderDO.getOrderStatus() == TradeStatusEnum.TRADE_CLOSED.getStatus()) {
+//                log.info("订单状态已经为：{}, 不需改变", orderDO.getOrderStatus());
+//                return "success";
+//            }
 
             String totalAmount = params.getOrDefault("total_amount", "");
             if (StringUtils.isEmpty(totalAmount)) {
@@ -435,33 +457,42 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, OrderDO> implements P
             }
             // 校验成功
             // 修改数据库订单状态
-            OrderDO updateOrder = new OrderDO();
             TradeStatusEnum tradeStatus = TradeStatusEnum.statusOf(params.getOrDefault("trade_status", ""));
-            if (tradeStatus == TradeStatusEnum.ERROR) {
-                log.error("订单状态异常: {}", params.get("trade_status"));
-                return "fail";
-            }
-            updateOrder.setId(orderDO.getId());
-            updateOrder.setOrderStatus(tradeStatus.getStatus());
-            updateOrder.setNotifyId(params.getOrDefault("notify_id", ""));
-            updateOrder.setTransactionId(params.getOrDefault("trade_no", ""));
-            String gmtCreateTime = params.getOrDefault("gmt_create", "");
-            String gmtPaymentTime = params.getOrDefault("gmt_payment", "");
-            if (StringUtils.isNotEmpty(gmtCreateTime)) {
-                updateOrder.setGmtCreateTime(TimeUtils.strToDateTime(gmtCreateTime));
-            }
-            if (StringUtils.isNotEmpty(gmtPaymentTime)) {
-                updateOrder.setGmtPaymentTime(TimeUtils.strToDateTime(gmtPaymentTime));
-            }
-            OrderDO repeatOrder = getOrderByOrderId(orderId);
-            if (repeatOrder.getOrderStatus() == TradeStatusEnum.TRADE_SUCCESS.getStatus() ||
-                    repeatOrder.getOrderStatus() == TradeStatusEnum.TRADE_FINISHED.getStatus()) {
-                log.info("订单已经被更新，无需重置数据库");
-                return "success";
-            }
-            int cnt = updateOrder(updateOrder);
-            if (cnt > 0) {
-                log.info("订单更新成功，{}", updateOrder);
+            if (TradeStatusEnum.TRADE_SUCCESS == tradeStatus || TradeStatusEnum.TRADE_FINISHED == tradeStatus) {
+                // 校验金额之类
+                try {
+                    OrderDO updateOrder = new OrderDO();
+                    updateOrder.setId(orderDO.getId());
+                    updateOrder.setOrderStatus(tradeStatus.getStatus());
+                    updateOrder.setTransactionId(params.getOrDefault("trade_no", ""));
+                    updateOrder.setPackageId(orderDO.getPackageId());
+                    updateOrder.setNotifyId(params.getOrDefault("notify_id", ""));
+                    String gmtCreateTime = params.getOrDefault("gmt_create", "");
+                    String gmtPaymentTime = params.getOrDefault("gmt_payment", "");
+                    if (StringUtils.isNotEmpty(gmtCreateTime)) {
+                        updateOrder.setGmtCreateTime(TimeUtils.strToDateTime(gmtCreateTime));
+                    }
+                    if (StringUtils.isNotEmpty(gmtPaymentTime)) {
+                        updateOrder.setGmtPaymentTime(TimeUtils.strToDateTime(gmtPaymentTime));
+                    }
+                    // 设置用户VIP时间
+                    UserDO userDo = userService.getById(orderDO.getUserId());
+                    ResultCode resultCode = orderService.successOrderAndUser(userDo, updateOrder);
+                    if (resultCode == ResultCode.SUCCESS) {
+                        redisService.deleteKey(ORDER_KEY_SUFFIX + orderDO.getUserType() + ":" + orderDO.getUserId());
+//                        redisService.setValue(ORDER_KEY_SUFFIX + "order:sign:" + orderId, "success", 1, TimeUnit.HOURS);
+                        return "success";
+                    } else {
+//                        redisService.setValue(ORDER_KEY_SUFFIX + "order:sign:" + orderId, "fail", 1, TimeUnit.HOURS);
+                        return "fail";
+                    }
+                } catch (Exception e) {
+                    log.error("订单验签接口异常，req: {}, error: {}", request, ExceptionUtils.getMessage(e));
+                } finally {
+                    if (MdcFilter.getCurrTraceId().equals(redisService.getValue(DISTRIBUTE_LOCK_KEY_SUFFIX + "order:update:" + orderDO.getUserType() + ":" + orderDO.getUserId()))) {
+                        redisService.deleteKey(DISTRIBUTE_LOCK_KEY_SUFFIX + "order:update:" + orderDO.getUserType() + ":" + orderDO.getUserId());
+                    }
+                }
             }
         } else {
             log.error("验签失败");

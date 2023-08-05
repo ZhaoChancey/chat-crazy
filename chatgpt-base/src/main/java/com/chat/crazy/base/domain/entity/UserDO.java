@@ -61,7 +61,12 @@ public class UserDO {
     /**
      * vip用户-失效日期
      */
-    LocalDateTime vipEndTime; 
+    LocalDateTime vipEndTime;
+
+    /**
+     * 套餐类型，1：普通，2：plus
+     */
+    Integer packageType;
 
     /**
      * 创建时间

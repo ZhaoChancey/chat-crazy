@@ -92,6 +92,7 @@ CREATE TABLE IF NOT EXISTS user_info (
     UNIQUE KEY idx_phone(phone),
     UNIQUE KEY idx_code(invite_code_id)
     ) ENGINE=InnoDB AUTO_INCREMENT=2000 DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
+alter table user_info add column package_type tinyint default -1 comment '套餐类型' after vip_end_time;
 
 -- 用户登录信息表
 CREATE TABLE IF NOT EXISTS user_active_info (

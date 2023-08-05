@@ -61,6 +61,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, OrderDO> implemen
             LocalDateTime vipEndTime = vipStartTime.plusDays(packageEnum.getDays());
             updateDo.setVipStartTime(vipStartTime);
             updateDo.setVipEndTime(vipEndTime);
+            updateDo.setPackageType(packageEnum.getPackageType().getId());
             int userCnt = userService.updateUserInfo(updateDo);
             if (userCnt <= 0) {
                 log.error("用户状态更新失败：{}", orderDO);

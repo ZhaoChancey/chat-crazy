@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chat.crazy.base.domain.entity.InviteCodeDO;
 import com.chat.crazy.base.domain.query.ChatRequest;
 import com.chat.crazy.base.enums.InviteCodeStatusEnum;
+import com.chat.crazy.base.enums.PackageTypeEnum;
 import com.chat.crazy.base.service.impl.RedisService;
 import com.chat.crazy.front.domain.request.user.UserRegisterReq;
 import com.chat.crazy.front.domain.vo.user.InviteCodeVo;
@@ -131,6 +132,7 @@ public class AuthServiceImpl implements AuthService {
         userDO.setInviteCodeId(codeDO.getId());
         userDO.setVipStartTime(now);
         userDO.setVipEndTime(LocalDateTime.parse("2023-08-15 23:59:59", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        userDO.setPackageType(PackageTypeEnum.COMMON_PACKAGE.getId());
         userDO.setStartTime(now);
         userDO.setEndTime(LocalDateTime.parse("2023-08-15 23:59:59", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         userService.save(userDO);

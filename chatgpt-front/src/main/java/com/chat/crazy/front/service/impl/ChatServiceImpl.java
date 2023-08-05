@@ -7,10 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chat.crazy.base.domain.entity.ChatMessageDO;
 import com.chat.crazy.base.domain.entity.ChatRoomDO;
 import com.chat.crazy.base.domain.query.PageQuery;
-import com.chat.crazy.base.enums.ChatMessageStatusEnum;
-import com.chat.crazy.base.enums.ChatRoomStatusEnum;
-import com.chat.crazy.base.enums.SessionOperateTypeEnum;
-import com.chat.crazy.base.enums.UserTypeEnum;
+import com.chat.crazy.base.enums.*;
 import com.chat.crazy.base.exception.ServiceException;
 import com.chat.crazy.base.util.ObjectMapperUtil;
 import com.chat.crazy.front.domain.request.chat.ChatProcessRequest;
@@ -108,7 +105,15 @@ public class ChatServiceImpl implements ChatService {
             throw new ServiceException("聊天窗口不存在");
         }
         chatProcessRequest.setChatRoomDO(validSession);
-        chatProcessRequest.setModel(chatProcessRequest.getVersion() == 0 ? ChatCompletion.Model.GPT_3_5_TURBO : ChatCompletion.Model.GPT_4_0613);
+        if (UserTypeEnum.NOT_LOGIN.getType() == chatProcessRequest.getUserType()) {
+            chatProcessRequest.setModel(ChatCompletion.Model.GPT_3_5_TURBO);
+        } else {
+            if (chatProcessRequest.getUser().getPackageType() != PackageTypeEnum.PLUS_PACKAGE.getId()) {
+                chatProcessRequest.setModel(ChatCompletion.Model.GPT_3_5_TURBO);
+            } else {
+                chatProcessRequest.setModel(chatProcessRequest.getVersion() == 0 ? ChatCompletion.Model.GPT_3_5_TURBO : ChatCompletion.Model.GPT_4_0613);
+            }
+        }
         // 超时时间设置 3 分钟
         ResponseBodyEmitter emitter = new ResponseBodyEmitter(3 * 60 * 1000L);
         emitter.onCompletion(() -> log.debug("请求参数：{}，Front-end closed the emitter connection.", ObjectMapperUtil.toJson(chatProcessRequest)));

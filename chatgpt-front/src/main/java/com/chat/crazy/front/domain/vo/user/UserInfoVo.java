@@ -26,6 +26,7 @@ public class UserInfoVo {
     @Data
     public static class UserIdentity {
         Integer vipType;
+        Integer packageType;
         Long startTs;
         Long endTs;
         Integer freeLastDays;

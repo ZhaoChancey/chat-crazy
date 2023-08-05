@@ -64,8 +64,8 @@ public class PayController {
         return R.data(payService.cancelOrder(request));
     }
 
+    @PostMapping("/vip/notify/v1")
+    public String notifyAsync(HttpServletRequest request) throws AlipayApiException {
+        return payService.notifyAsync(request);
+    }
 }
-//    @PostMapping("/vip/notify/v1")
-//    public String notifyAsync(HttpServletRequest request) throws AlipayApiException {
-//        return payService.notifyAsync(request);
-//    }}

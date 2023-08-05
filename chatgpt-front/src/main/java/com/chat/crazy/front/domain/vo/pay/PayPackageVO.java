@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author:
@@ -22,7 +23,7 @@ public class PayPackageVO {
     private String extendStr;
     
     @Schema(title = "套餐元信息")
-    private List<PayPackageItem> packages;
+    private Map<String, List<PayPackageItem>> packages;
     
     @Data
     @Builder
